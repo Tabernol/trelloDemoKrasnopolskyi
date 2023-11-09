@@ -1,0 +1,52 @@
+package com.krasnopolskyi.trellodemokrasnopolskyi.http;
+
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.TaskReadDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.TaskPostDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
+import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
+import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
+import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/tasks")
+public class TaskRestController {
+
+    private final TaskService taskService;
+
+    private final ColumnService columnService;
+    private final TaskMapper taskMapper;
+
+    public TaskRestController(TaskService taskService, ColumnService columnService, TaskMapper taskMapper) {
+        this.taskService = taskService;
+        this.columnService = columnService;
+        this.taskMapper = taskMapper;
+    }
+
+    @GetMapping("/{id}")
+    public TaskReadDto getTask(@PathVariable("id") Long id) {
+        return taskMapper.mapToDto(taskService.findById(id).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
+    }
+
+    @GetMapping
+    public List<TaskReadDto> getAll() {
+        return taskMapper.mapAll(taskService.findAll());
+    }
+
+    @PostMapping
+    public TaskReadDto create(@RequestBody TaskPostDto taskPostDto) {
+        //Check if id column is not valid
+//        Column maybeColumn = columnService.findById(taskPostDto.getColumnId()).orElseThrow(()
+//                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Column not found"));
+
+        Task task = taskMapper.mapToEntity(taskPostDto);
+        return taskMapper.mapToDto(taskService.create(task));
+    }
+
+}

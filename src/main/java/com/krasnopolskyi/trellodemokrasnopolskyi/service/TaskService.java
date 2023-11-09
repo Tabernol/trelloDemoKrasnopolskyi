@@ -1,4 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service;
 
-public interface TaskService {
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
+
+public interface TaskService extends BaseService<Task>{
 }

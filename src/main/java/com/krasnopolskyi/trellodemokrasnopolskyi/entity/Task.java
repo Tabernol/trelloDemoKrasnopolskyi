@@ -1,11 +1,14 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "tasks", schema = "krasnopolskyi")
 public class Task {
