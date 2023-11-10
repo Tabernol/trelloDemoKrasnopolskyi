@@ -3,6 +3,7 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.service;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +28,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public Task create(Task entity) {
         entity.setDateOfCreation(LocalDateTime.now());
         return taskRepository.save(entity);
@@ -38,12 +40,22 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task edit(Task entity, Long id) {
-        return null;
+    @Transactional
+    public Optional<Task> update(Task entity, Long id) {
+        return taskRepository.findById(id)
+                .map(taskRepository::saveAndFlush);
     }
 
+
     @Override
-    public void delete(Long id) {
-        taskRepository.deleteById(id);
+    @Transactional
+    public boolean delete(Long id) {
+        return taskRepository.findById(id)
+                .map(entity -> {
+                    taskRepository.delete(entity);
+                    taskRepository.flush();
+                    return true;
+                })
+                .orElse(false);
     }
 }

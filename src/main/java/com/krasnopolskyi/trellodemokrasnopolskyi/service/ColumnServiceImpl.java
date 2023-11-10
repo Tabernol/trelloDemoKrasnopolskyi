@@ -32,12 +32,12 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
-    public Column edit(Column entity, Long id) {
+    public Optional<Column> update(Column entity, Long id) {
         return null;
     }
 
     @Override
-    public void delete(Long id) {
-
+    public boolean delete(Long id) {
+        return false;
     }
 }

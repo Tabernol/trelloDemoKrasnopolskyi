@@ -1,5 +1,7 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,8 +13,8 @@ public interface BaseService<T> {
 
     List<T> findAll();
 
-    T edit(T entity, Long id);
+    Optional<T> update(T entity, Long id);
 
-    void delete(Long id);
+    boolean delete(Long id);
 
 }

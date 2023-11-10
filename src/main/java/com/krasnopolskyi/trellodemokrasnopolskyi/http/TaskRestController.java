@@ -8,10 +8,14 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+
+import static org.springframework.http.ResponseEntity.noContent;
+import static org.springframework.http.ResponseEntity.notFound;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
@@ -40,6 +44,7 @@ public class TaskRestController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public TaskReadDto create(@RequestBody TaskPostDto taskPostDto) {
         //Check if id column is not valid
 //        Column maybeColumn = columnService.findById(taskPostDto.getColumnId()).orElseThrow(()
@@ -47,6 +52,11 @@ public class TaskRestController {
 
         Task task = taskMapper.mapToEntity(taskPostDto);
         return taskMapper.mapToDto(taskService.create(task));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") long id) {
+        return taskService.delete(id) ? noContent().build() : notFound().build();
     }
 
 }

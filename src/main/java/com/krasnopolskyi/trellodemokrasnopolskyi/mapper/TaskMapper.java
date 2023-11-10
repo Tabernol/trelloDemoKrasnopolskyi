@@ -41,6 +41,7 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
                 .build();
     }
 
+
     public List<TaskReadDto> mapAll(List<Task> source) {
         List<TaskReadDto> result = new ArrayList<>();
         for (Task task : source) {
