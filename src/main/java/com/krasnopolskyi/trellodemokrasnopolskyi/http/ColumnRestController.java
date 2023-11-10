@@ -5,10 +5,14 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+
+import static org.springframework.http.ResponseEntity.noContent;
+import static org.springframework.http.ResponseEntity.notFound;
 
 @RestController
 @RequestMapping("/api/v1/columns")
@@ -37,5 +41,10 @@ public class ColumnRestController {
     public Column create(@RequestBody ColumnPostDto columnPostDto) {
         Column column = columnMapper.mapToEntity(columnPostDto);
         return columnService.create(column);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") long id) {
+        return columnService.delete(id) ? noContent().build() : notFound().build();
     }
 }
