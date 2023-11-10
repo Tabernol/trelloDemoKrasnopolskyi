@@ -1,5 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,5 +22,6 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "column_id")
+    @JsonIgnore
     private Column column;
 }

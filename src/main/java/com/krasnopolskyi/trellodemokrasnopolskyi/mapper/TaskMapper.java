@@ -41,6 +41,19 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
                 .build();
     }
 
+    public Task mapToEntityWithNullFields(TaskPostDto taskPostDto) {
+        Task task = new Task();
+        task.setName(taskPostDto.getName());
+        task.setDescription(taskPostDto.getDescription());
+//        if (taskPostDto.getColumnId() != null) {
+//            task.setColumn(columnService.findById(taskPostDto.getColumnId()).orElseThrow(()
+//                    -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Column not found")));
+//        } else {
+//            task.setColumn(null);
+//        }
+        return task;
+    }
+
 
     public List<TaskReadDto> mapAll(List<Task> source) {
         List<TaskReadDto> result = new ArrayList<>();

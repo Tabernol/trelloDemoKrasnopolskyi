@@ -37,8 +37,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public Optional<Task> update(Task entity, Long id) {
-        return taskRepository.findById(id)
-                .map(taskRepository::saveAndFlush);
+     taskRepository.customUpdate(entity.getName(), entity.getDescription(), id);
+        return taskRepository.findById(id);
+
     }
 
 
