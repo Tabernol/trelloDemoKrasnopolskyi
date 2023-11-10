@@ -1,7 +1,7 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.mapper;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.TaskReadDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.TaskPostDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.read.TaskReadDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.post.TaskPostDto;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import org.springframework.http.HttpStatus;

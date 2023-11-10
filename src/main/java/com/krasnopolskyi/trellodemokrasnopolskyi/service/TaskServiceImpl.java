@@ -17,11 +17,6 @@ public class TaskServiceImpl implements TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public Optional<Task> getTask(Long id) {
-        return taskRepository.findById(id);
-    }
-
-
     @Override
     public Optional<Task> findById(Long id) {
         return taskRepository.findById(id);

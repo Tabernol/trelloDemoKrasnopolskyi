@@ -3,6 +3,7 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.service;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,13 +23,14 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
+    @Transactional
     public Column create(Column entity) {
-        return null;
+        return columnRepository.save(entity);
     }
 
     @Override
     public List<Column> findAll() {
-        return null;
+        return columnRepository.findAll();
     }
 
     @Override
@@ -37,7 +39,14 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
+    @Transactional
     public boolean delete(Long id) {
-        return false;
+        return columnRepository.findById(id)
+                .map(entity -> {
+                    columnRepository.delete(entity);
+                    columnRepository.flush();
+                    return true;
+                })
+                .orElse(false);
     }
 }

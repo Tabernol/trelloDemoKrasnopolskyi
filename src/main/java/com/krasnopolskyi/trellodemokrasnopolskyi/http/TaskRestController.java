@@ -1,8 +1,7 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.http;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.TaskReadDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.TaskPostDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.read.TaskReadDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.post.TaskPostDto;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
