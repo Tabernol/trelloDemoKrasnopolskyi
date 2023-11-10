@@ -1,7 +1,8 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.service;
+package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
+import com.krasnopolskyi.trellodemokrasnopolskyi.service.BoardService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

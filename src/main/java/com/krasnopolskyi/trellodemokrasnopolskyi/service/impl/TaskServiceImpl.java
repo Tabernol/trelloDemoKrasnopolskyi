@@ -1,7 +1,8 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.service;
+package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskRepository;
+import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

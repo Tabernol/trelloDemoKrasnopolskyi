@@ -1,7 +1,8 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.service;
+package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
+import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
