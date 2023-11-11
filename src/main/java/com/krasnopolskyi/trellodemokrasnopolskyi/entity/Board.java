@@ -20,5 +20,5 @@ public class Board {
     private String owner;
 
     @OneToMany(mappedBy = "board")
-    private List<Pillar> pillars;
+    private List<Column> columns;
 }

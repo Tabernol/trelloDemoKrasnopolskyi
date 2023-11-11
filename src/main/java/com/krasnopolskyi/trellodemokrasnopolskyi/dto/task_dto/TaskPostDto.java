@@ -27,5 +27,5 @@ public class TaskPostDto {
 
 
     @NotNull(groups = {CreateValidationGroup.class})
-    private Long pillarId;
+    private Long columnId;
 }

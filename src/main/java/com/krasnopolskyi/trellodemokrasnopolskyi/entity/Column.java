@@ -12,8 +12,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "pillars", schema = "krasnopolskyi")
-public class Pillar {
+@Table(name = "columns", schema = "krasnopolskyi")
+public class Column {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +24,7 @@ public class Pillar {
     @JsonIgnore
     private Board board;
 
-    @OneToMany(mappedBy = "pillar")
+    @OneToMany(mappedBy = "column")
     private List<Task> tasks;
 
 

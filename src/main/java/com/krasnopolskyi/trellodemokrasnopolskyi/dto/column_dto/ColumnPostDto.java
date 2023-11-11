@@ -1,4 +1,4 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.dto.pillar_dto;
+package com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.validator.CreateValidationGroup;
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PillarPostDto {
+public class ColumnPostDto {
     @Size(min = 2, max = 64)
     @NotBlank(groups = {CreateValidationGroup.class})
     private String name;

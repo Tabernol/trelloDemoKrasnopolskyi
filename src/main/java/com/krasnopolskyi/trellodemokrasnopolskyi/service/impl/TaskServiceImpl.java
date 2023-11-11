@@ -1,13 +1,12 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Pillar;
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
-import com.krasnopolskyi.trellodemokrasnopolskyi.repository.PillarRepository;
+import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,11 +19,11 @@ import java.util.Optional;
 @Slf4j
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
-    private final PillarRepository pillarRepository;
+    private final ColumnRepository columnRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository, PillarRepository pillarRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, ColumnRepository columnRepository) {
         this.taskRepository = taskRepository;
-        this.pillarRepository = pillarRepository;
+        this.columnRepository = columnRepository;
     }
 
     @Override
@@ -58,10 +57,10 @@ public class TaskServiceImpl implements TaskService {
                 excitingTask.setDescription(task.getDescription());
             }
 
-            if (task.getPillar().getId() != null) {
-                Pillar pillar = pillarRepository.findById(task.getPillar().getId()).orElseThrow(()
+            if (task.getColumn().getId() != null) {
+                Column column = columnRepository.findById(task.getColumn().getId()).orElseThrow(()
                         -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-                excitingTask.setPillar(pillar);
+                excitingTask.setColumn(column);
             }
             taskRepository.save(excitingTask);
         }

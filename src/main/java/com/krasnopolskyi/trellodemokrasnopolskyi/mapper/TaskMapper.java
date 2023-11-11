@@ -2,7 +2,7 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.mapper;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadDto;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskPostDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Pillar;
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import org.springframework.stereotype.Component;
 
@@ -12,13 +12,6 @@ import java.util.List;
 @Component
 public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
 
-//    private final PillarValidator pillarValidator;
-//
-//    public TaskMapper(PillarValidator pillarValidator) {
-//        this.pillarValidator = pillarValidator;
-//    }
-
-
     @Override
     public TaskReadDto mapToDto(Task task) {
         return TaskReadDto.builder()
@@ -26,7 +19,7 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
                 .name(task.getName())
                 .description(task.getDescription())
                 .dateOfCreation(task.getDateOfCreation())
-                .columnId(task.getPillar().getId())
+                .columnId(task.getColumn().getId())
                 .build();
     }
 
@@ -35,7 +28,7 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
         return Task.builder()
                 .name(taskPostDto.getName())
                 .description(taskPostDto.getDescription())
-                .pillar(Pillar.builder().id(taskPostDto.getPillarId()).build())
+                .column(Column.builder().id(taskPostDto.getColumnId()).build())
                 .build();
     }
 
