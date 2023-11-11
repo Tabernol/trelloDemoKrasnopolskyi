@@ -35,8 +35,6 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
         return Task.builder()
                 .name(taskPostDto.getName())
                 .description(taskPostDto.getDescription())
-//                .pillar(pillarService.findById(taskPostDto.getPillarId()).orElseThrow(()
-//                        -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pillar not found")))
                 .pillar(Pillar.builder().id(taskPostDto.getPillarId()).build())
                 .build();
     }

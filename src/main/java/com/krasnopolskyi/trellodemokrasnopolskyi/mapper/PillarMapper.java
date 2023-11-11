@@ -1,6 +1,7 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.mapper;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.post.PillarPostDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.pillar_dto.PillarPostDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Pillar;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.BoardService;
 import org.springframework.http.HttpStatus;
@@ -21,8 +22,7 @@ public class PillarMapper implements BaseMapper<Pillar, PillarPostDto> {
     public Pillar mapToEntity(PillarPostDto pillarPostDto) {
         return Pillar.builder()
                 .name(pillarPostDto.getName())
-                .board(boardService.findById(pillarPostDto.getBoardId()).orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .board(Board.builder().id(pillarPostDto.getBoardId()).build())
                 .build();
     }
 

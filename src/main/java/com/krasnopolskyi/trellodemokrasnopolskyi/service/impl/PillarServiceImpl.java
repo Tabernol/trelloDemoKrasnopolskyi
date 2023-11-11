@@ -34,10 +34,10 @@ public class PillarServiceImpl implements PillarService {
         return pillarRepository.findAll();
     }
 
-//    @Override
-//    public Optional<Column> update(Column entity, Long id) {
-//        return null;
-//    }
+    @Override
+    public Optional<Pillar> update(Pillar pillar, Long id) {
+        return null;
+    }
 
     @Override
     @Transactional

@@ -1,12 +1,14 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString(exclude = "pillars")
 @Entity
 @Table(name = "boards", schema = "krasnopolskyi")
