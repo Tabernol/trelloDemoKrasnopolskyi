@@ -1,4 +1,4 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.dto.read;
+package com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

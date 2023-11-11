@@ -1,12 +1,10 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.mapper;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.read.TaskReadDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.post.TaskPostDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskPostDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Pillar;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
-import com.krasnopolskyi.trellodemokrasnopolskyi.service.PillarService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +12,11 @@ import java.util.List;
 @Component
 public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
 
-    private final PillarService pillarService;
-
-    public TaskMapper(PillarService pillarService) {
-        this.pillarService = pillarService;
-    }
+//    private final PillarValidator pillarValidator;
+//
+//    public TaskMapper(PillarValidator pillarValidator) {
+//        this.pillarValidator = pillarValidator;
+//    }
 
 
     @Override
@@ -33,11 +31,13 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
     }
 
     public Task mapToEntity(TaskPostDto taskPostDto) {
+
         return Task.builder()
                 .name(taskPostDto.getName())
                 .description(taskPostDto.getDescription())
-                .pillar(pillarService.findById(taskPostDto.getPillarId()).orElseThrow(()
-                        -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pillar not found")))
+//                .pillar(pillarService.findById(taskPostDto.getPillarId()).orElseThrow(()
+//                        -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pillar not found")))
+                .pillar(Pillar.builder().id(taskPostDto.getPillarId()).build())
                 .build();
     }
 

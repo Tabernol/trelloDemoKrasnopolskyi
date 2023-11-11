@@ -1,11 +1,16 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Pillar;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
+import com.krasnopolskyi.trellodemokrasnopolskyi.repository.PillarRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,9 +20,11 @@ import java.util.Optional;
 @Slf4j
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
+    private final PillarRepository pillarRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, PillarRepository pillarRepository) {
         this.taskRepository = taskRepository;
+        this.pillarRepository = pillarRepository;
     }
 
     @Override
@@ -37,19 +44,28 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findAll();
     }
 
-    @Override
     @Transactional
     public Optional<Task> update(Task task, Long id) {
-        taskRepository.save(task);
-//        task.setId(id);
-//        log.info(task.toString());
-//        taskRepository.customUpdate(
-//                Optional.ofNullable(task.getName()),
-//                Optional.ofNullable(task.getDescription()),
-//                Optional.ofNullable(task.getPillar().getId()),
-//                id);
-        return taskRepository.findById(id);
+        Optional<Task> optionalTask = findById(id);
+        if (optionalTask.isPresent()) {
+            Task excitingTask = optionalTask.get();
 
+            if (task.getName() != null) {
+                excitingTask.setName(task.getName());
+            }
+
+            if (task.getDescription() != null) {
+                excitingTask.setDescription(task.getDescription());
+            }
+
+            if (task.getPillar().getId() != null) {
+                Pillar pillar = pillarRepository.findById(task.getPillar().getId()).orElseThrow(()
+                        -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                excitingTask.setPillar(pillar);
+            }
+            taskRepository.save(excitingTask);
+        }
+        return taskRepository.findById(id);
     }
 
 
