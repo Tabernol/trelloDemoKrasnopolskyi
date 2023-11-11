@@ -2,10 +2,12 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
 @Data
+@ToString(exclude = "pillars")
 @Entity
 @Table(name = "boards", schema = "krasnopolskyi")
 public class Board {
@@ -16,5 +18,5 @@ public class Board {
     private String owner;
 
     @OneToMany(mappedBy = "board")
-    private List<Column> columns;
+    private List<Pillar> pillars;
 }

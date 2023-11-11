@@ -21,7 +21,7 @@ public class Task {
     private LocalDateTime dateOfCreation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "column_id")
+    @JoinColumn(name = "pillar_id")
     @JsonIgnore
-    private Column column;
+    private Pillar pillar;
 }

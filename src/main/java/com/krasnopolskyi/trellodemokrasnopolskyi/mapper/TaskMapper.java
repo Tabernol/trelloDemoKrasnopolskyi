@@ -3,7 +3,7 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.mapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.read.TaskReadDto;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.post.TaskPostDto;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
-import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
+import com.krasnopolskyi.trellodemokrasnopolskyi.service.PillarService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,10 +14,10 @@ import java.util.List;
 @Component
 public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
 
-    private final ColumnService columnService;
+    private final PillarService pillarService;
 
-    public TaskMapper(ColumnService columnService) {
-        this.columnService = columnService;
+    public TaskMapper(PillarService pillarService) {
+        this.pillarService = pillarService;
     }
 
 
@@ -28,7 +28,7 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
                 .name(task.getName())
                 .description(task.getDescription())
                 .dateOfCreation(task.getDateOfCreation())
-                .columnId(task.getColumn().getId())
+                .columnId(task.getPillar().getId())
                 .build();
     }
 
@@ -36,23 +36,23 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
         return Task.builder()
                 .name(taskPostDto.getName())
                 .description(taskPostDto.getDescription())
-                .column(columnService.findById(taskPostDto.getColumnId()).orElseThrow(()
-                        -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Column not found")))
+                .pillar(pillarService.findById(taskPostDto.getPillarId()).orElseThrow(()
+                        -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pillar not found")))
                 .build();
     }
 
-    public Task mapToEntityWithNullFields(TaskPostDto taskPostDto) {
-        Task task = new Task();
-        task.setName(taskPostDto.getName());
-        task.setDescription(taskPostDto.getDescription());
-//        if (taskPostDto.getColumnId() != null) {
-//            task.setColumn(columnService.findById(taskPostDto.getColumnId()).orElseThrow(()
-//                    -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Column not found")));
-//        } else {
-//            task.setColumn(null);
-//        }
-        return task;
-    }
+//    public Task mapToEntityWithNullFields(TaskPostDto taskPostDto) {
+//        Task task = new Task();
+//        task.setName(taskPostDto.getName());
+//        task.setDescription(taskPostDto.getDescription());
+////        if (taskPostDto.getColumnId() != null) {
+////            task.setColumn(columnService.findById(taskPostDto.getColumnId()).orElseThrow(()
+////                    -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Column not found")));
+////        } else {
+////            task.setColumn(null);
+////        }
+//        return task;
+//    }
 
 
     public List<TaskReadDto> mapAll(List<Task> source) {

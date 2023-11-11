@@ -18,5 +18,5 @@ public class TaskPostDto {
     @Size(max = 256)
     private String description;
     @Size(min = 2, max = 50)
-    private Long columnId;
+    private Long pillarId;
 }

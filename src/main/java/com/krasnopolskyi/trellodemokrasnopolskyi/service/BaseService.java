@@ -13,8 +13,6 @@ public interface BaseService<T> {
 
     List<T> findAll();
 
-    Optional<T> update(T entity, Long id);
-
     boolean delete(Long id);
 
 }

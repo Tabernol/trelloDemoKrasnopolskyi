@@ -12,15 +12,16 @@ import java.util.Optional;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    @Modifying
-    @Transactional
-    @Query("UPDATE Task t SET " +
-            "t.name = COALESCE(:name, t.name)," +
-            "t.description = COALESCE(:description, t.description) " +
-          //  "t.column_id = COALESCE(:columnId, t.column_id) " +
-            "WHERE t.id = :id")
-    int customUpdate(@Param("name") String name,
-                      @Param("description") String description,
-                    //  @Param("column_id") Long columnId,
-                      @Param("id") Long id);
+
+//    @Modifying
+//    @Transactional
+//    @Query("UPDATE Task t SET " +
+//            "t.name = COALESCE(:name, t.name)," +
+//            "t.description = COALESCE(:description, t.description), " +
+//            "t.pillar = CASE WHEN :pillarId IS NOT NULL THEN :pillarId ELSE null END " +
+//            "WHERE t.id = :id")
+//    int customUpdate(@Param("name") Optional<String> name,
+//                     @Param("description") Optional<String> description,
+//                     @Param("pillarId") Optional<Long> pillarId,
+//                     @Param("id") Long id);
 }

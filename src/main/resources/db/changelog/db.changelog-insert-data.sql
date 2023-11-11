@@ -8,18 +8,18 @@ VALUES
 
 
 --changeset max:2
-INSERT INTO krasnopolskyi.columns (name, board_id)
+INSERT INTO krasnopolskyi.pillars (name, board_id)
 VALUES
-    ('Column 1', 1),
-    ('Column 2', 1),
-    ('Column 3', 1),
+    ('pillar 1', 1),
+    ('pillar 2', 1),
+    ('pillar 3', 1),
     ('to do', 2),
     ('in progress', 2),
     ('done', 2)
 
 
 --changeset max:3
-INSERT INTO krasnopolskyi.tasks (name, description, date_of_creation, column_id)
+INSERT INTO krasnopolskyi.tasks (name, description, date_of_creation, pillar_id)
 VALUES
     ('Task 1', 'Description 1', '2023-11-10 10:00:00', 1),
     ('Task 2', 'Description 2', '2023-11-10 11:00:00', 1),

@@ -32,10 +32,10 @@ public class BoardServiceImpl implements BoardService {
         return null;
     }
 
-    @Override
-    public Optional<Board> update(Board entity, Long id) {
-        return Optional.empty();
-    }
+//    @Override
+//    public Optional<Board> update(Board entity, Long id) {
+//        return Optional.empty();
+//    }
 
     @Override
     public boolean delete(Long id) {

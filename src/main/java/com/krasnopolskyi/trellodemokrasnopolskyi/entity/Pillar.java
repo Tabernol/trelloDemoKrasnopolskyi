@@ -2,20 +2,18 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Data
+@ToString(exclude =  "tasks")
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "columns", schema = "krasnopolskyi")
-public class Column {
+@Table(name = "pillars", schema = "krasnopolskyi")
+public class Pillar {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,7 +24,7 @@ public class Column {
     @JsonIgnore
     private Board board;
 
-    @OneToMany(mappedBy = "column")
+    @OneToMany(mappedBy = "pillar")
     private List<Task> tasks;
 
 
