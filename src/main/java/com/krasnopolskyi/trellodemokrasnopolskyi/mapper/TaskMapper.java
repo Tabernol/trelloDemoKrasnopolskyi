@@ -10,9 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class TaskMapper implements BaseMapper<Task, TaskReadDto> {
+public class TaskMapper implements BaseMapper<Task, TaskReadDto, TaskPostDto> {
 
-    @Override
     public TaskReadDto mapToDto(Task task) {
         return TaskReadDto.builder()
                 .id(task.getId())

@@ -4,6 +4,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.BoardService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,22 +24,37 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Board create(Board entity) {
-        return null;
-    }
-
-    @Override
     public List<Board> findAll() {
-        return null;
+        return boardRepository.findAll();
     }
 
-//    @Override
-//    public Optional<Board> update(Board entity, Long id) {
-//        return Optional.empty();
-//    }
+    @Override
+    @Transactional
+    public Board create(Board entity) {
+        return boardRepository.save(entity);
+    }
 
     @Override
+    public Optional<Board> update(Board board, Long id) {
+        Optional<Board> optionalBoard = boardRepository.findById(id);
+        if(optionalBoard.isPresent()){
+            Board existingBoard = optionalBoard.get();
+            if(board.getName() != null){
+                existingBoard.setName(board.getName());
+                boardRepository.save(existingBoard);
+            }
+        }
+        return boardRepository.findById(id);
+    }
+
+    @Override
+    @Transactional
     public boolean delete(Long id) {
-        return false;
+        return boardRepository.findById(id)
+                .map(entity -> {
+                    boardRepository.delete(entity);
+                    boardRepository.flush();
+                    return true;
+                }).orElse(false);
     }
 }

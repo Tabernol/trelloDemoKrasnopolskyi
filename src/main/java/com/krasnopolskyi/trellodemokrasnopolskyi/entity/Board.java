@@ -1,5 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,5 +21,6 @@ public class Board {
     private String owner;
 
     @OneToMany(mappedBy = "board")
+    @JsonIgnore
     private List<Column> columns;
 }

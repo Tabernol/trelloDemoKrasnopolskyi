@@ -54,7 +54,7 @@ public class ColumnRestController {
         Column column = columnMapper.mapToEntity(columnPostDto);
 
 
-        //chech exisiting board
+        //check exisiting board
         return ResponseEntity.ok(columnService.create(column));
     }
 
