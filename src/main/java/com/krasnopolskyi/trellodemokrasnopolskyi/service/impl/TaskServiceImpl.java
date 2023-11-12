@@ -32,6 +32,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<Task> findAll() {
+        return taskRepository.findAll();
+    }
+
+    @Override
     @Transactional
     public Task create(Task entity) {
         entity.setDateOfCreation(LocalDateTime.now());
@@ -39,30 +44,26 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> findAll() {
-        return taskRepository.findAll();
-    }
-
     @Transactional
     public Optional<Task> update(Task task, Long id) {
         Optional<Task> optionalTask = findById(id);
         if (optionalTask.isPresent()) {
-            Task excitingTask = optionalTask.get();
+            Task existingTask = optionalTask.get();
 
             if (task.getName() != null) {
-                excitingTask.setName(task.getName());
+                existingTask.setName(task.getName());
             }
 
             if (task.getDescription() != null) {
-                excitingTask.setDescription(task.getDescription());
+                existingTask.setDescription(task.getDescription());
             }
 
             if (task.getColumn().getId() != null) {
                 Column column = columnRepository.findById(task.getColumn().getId()).orElseThrow(()
                         -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-                excitingTask.setColumn(column);
+                existingTask.setColumn(column);
             }
-            taskRepository.save(excitingTask);
+            taskRepository.save(existingTask);
         }
         return taskRepository.findById(id);
     }

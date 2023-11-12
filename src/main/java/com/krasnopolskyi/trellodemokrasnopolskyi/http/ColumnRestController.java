@@ -1,9 +1,11 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.http;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnPostDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadDto;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
+import com.krasnopolskyi.trellodemokrasnopolskyi.validator.ColumnValidator;
 import com.krasnopolskyi.trellodemokrasnopolskyi.validator.CreateValidationGroup;
 import jakarta.validation.groups.Default;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.noContent;
 import static org.springframework.http.ResponseEntity.notFound;
@@ -23,11 +26,13 @@ import static org.springframework.http.ResponseEntity.notFound;
 public class ColumnRestController {
     private final ColumnService columnService;
     private final ColumnMapper columnMapper;
+    private final ColumnValidator columnValidator;
 
     public ColumnRestController(ColumnService columnService,
-                                ColumnMapper columnMapper) {
+                                ColumnMapper columnMapper, ColumnValidator columnValidator) {
         this.columnService = columnService;
         this.columnMapper = columnMapper;
+        this.columnValidator = columnValidator;
     }
 
     @GetMapping("/{id}")
@@ -47,26 +52,26 @@ public class ColumnRestController {
             @Validated({Default.class, CreateValidationGroup.class})
             @RequestBody ColumnPostDto columnPostDto) {
         Column column = columnMapper.mapToEntity(columnPostDto);
+
+
+        //chech exisiting board
         return ResponseEntity.ok(columnService.create(column));
     }
 
 
-//    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<Pillar> update(
-//            @PathVariable("id") Long id,
-//            @Validated()
-//            @RequestBody PillarPostDto pillarPostDto) {
-//        if (!pillarValidator.isPillarExist(taskPostDto)) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Column> update(
+            @PathVariable("id") Long id,
+            @Validated()
+            @RequestBody ColumnPostDto columnPostDto) {
+        if (!columnValidator.isColumnExist(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
-//        Pillar pillar = pillarMapper.mapToEntity(pillarPostDto);
-
-
-//        TaskReadDto updatedTaskDto = taskMapper.mapToDto(taskService.update(task, id).orElseThrow(()
-//                -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
-//        return ResponseEntity.ok(updatedTaskDto);
- //   }
+        Column column = columnMapper.mapToEntity(columnPostDto);
+        return ResponseEntity.ok(columnService.update(column, id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") long id) {

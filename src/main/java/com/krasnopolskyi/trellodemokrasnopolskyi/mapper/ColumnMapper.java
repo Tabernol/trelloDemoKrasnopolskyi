@@ -23,9 +23,4 @@ public class ColumnMapper implements BaseMapper<Column, ColumnPostDto> {
                 .board(Board.builder().id(columnPostDto.getBoardId()).build())
                 .build();
     }
-
-    @Override
-    public ColumnPostDto mapToDto(Column column) {
-        return null;
-    }
 }

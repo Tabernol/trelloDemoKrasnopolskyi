@@ -24,19 +24,29 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
-    @Transactional
-    public Column create(Column entity) {
-        return columnRepository.save(entity);
-    }
-
-    @Override
     public List<Column> findAll() {
         return columnRepository.findAll();
     }
 
     @Override
+    @Transactional
+    public Column create(Column entity) {
+        return columnRepository.save(entity);
+    }
+
+
+    @Override
+    @Transactional
     public Optional<Column> update(Column column, Long id) {
-        return null;
+        Optional<Column> optionalColumn = findById(id);
+        if (optionalColumn.isPresent()) {
+            Column existingColumn = optionalColumn.get();
+
+            existingColumn.setName(column.getName());
+
+            columnRepository.save(existingColumn);
+        }
+        return findById(id);
     }
 
     @Override

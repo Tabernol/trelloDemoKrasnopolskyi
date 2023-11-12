@@ -59,7 +59,7 @@ public class TaskRestController {
             @Validated({Default.class, CreateValidationGroup.class})
             @RequestBody TaskPostDto taskPostDto) {
 
-        if (!columnValidator.isPillarExist(taskPostDto)) {
+        if (!columnValidator.isColumnExist(taskPostDto.getColumnId())) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
@@ -74,7 +74,8 @@ public class TaskRestController {
             @PathVariable("id") Long id,
             @Validated()
             @RequestBody TaskPostDto taskPostDto) {
-        if (!columnValidator.isPillarExist(taskPostDto)) {
+        //if columnId == null than method will update entity with old columnId
+        if (taskPostDto.getColumnId() != null && !columnValidator.isColumnExist(taskPostDto.getColumnId())) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 

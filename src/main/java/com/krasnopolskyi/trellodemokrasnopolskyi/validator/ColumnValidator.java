@@ -13,8 +13,7 @@ public class ColumnValidator {
     }
 
 
-    public boolean isPillarExist(TaskPostDto taskPostDto) {
-        if (taskPostDto.getColumnId() == null) return true;
-        return columnRepository.existsById(taskPostDto.getColumnId());
+    public boolean isColumnExist(Long id) {
+        return columnRepository.existsById(id);
     }
 }
