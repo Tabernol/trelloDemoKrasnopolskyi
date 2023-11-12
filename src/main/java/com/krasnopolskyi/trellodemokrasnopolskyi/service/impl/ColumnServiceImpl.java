@@ -1,13 +1,14 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 public class ColumnServiceImpl implements ColumnService {
@@ -19,8 +20,10 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
-    public Optional<Column> findById(Long id) {
-        return columnRepository.findById(id);
+    public Column findById(Long id) {
+        return columnRepository.findById(id)
+                .orElseThrow(()
+                        -> new ColumnNotFoundExceptionTrello("Column with id " + id + " not found"));
     }
 
     @Override
@@ -37,16 +40,10 @@ public class ColumnServiceImpl implements ColumnService {
 
     @Override
     @Transactional
-    public Optional<Column> update(Column column, Long id) {
-        Optional<Column> optionalColumn = findById(id);
-        if (optionalColumn.isPresent()) {
-            Column existingColumn = optionalColumn.get();
-
-            existingColumn.setName(column.getName());
-
-            columnRepository.save(existingColumn);
-        }
-        return findById(id);
+    public Column update(Column column, Long id) {
+        Column existingColumn = findById(id);
+        existingColumn.setName(column.getName());
+        return columnRepository.save(existingColumn);
     }
 
     @Override

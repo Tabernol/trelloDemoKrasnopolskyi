@@ -1,13 +1,13 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloEntityNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
+
 
 public interface BaseService<T> {
 
-    Optional<T> findById(Long id);
+    T findById(Long id) throws TrelloEntityNotFoundException;
 
     T create(T entity);
 

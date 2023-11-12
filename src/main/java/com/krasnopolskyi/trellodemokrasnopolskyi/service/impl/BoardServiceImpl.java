@@ -1,13 +1,14 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.BoardNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.BoardService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -19,8 +20,9 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Optional<Board> findById(Long id) {
-        return boardRepository.findById(id);
+    public Board findById(Long id) {
+        return boardRepository.findById(id).orElseThrow(
+                () -> new BoardNotFoundExceptionTrello("Board with id " + id + " not found"));
     }
 
     @Override
@@ -35,16 +37,12 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Optional<Board> update(Board board, Long id) {
-        Optional<Board> optionalBoard = boardRepository.findById(id);
-        if(optionalBoard.isPresent()){
-            Board existingBoard = optionalBoard.get();
-            if(board.getName() != null){
+    public Board update(Board board, Long id) {
+        Board existingBoard = findById(id);
+            if (board.getName() != null) {
                 existingBoard.setName(board.getName());
-                boardRepository.save(existingBoard);
             }
-        }
-        return boardRepository.findById(id);
+        return boardRepository.save(existingBoard);
     }
 
     @Override

@@ -6,11 +6,11 @@ import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "pillars")
 @Entity
 @Table(name = "boards", schema = "krasnopolskyi")
 public class Board {

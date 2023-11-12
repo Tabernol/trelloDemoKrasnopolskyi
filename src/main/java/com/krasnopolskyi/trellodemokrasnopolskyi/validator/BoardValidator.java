@@ -1,5 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.validator;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.BoardNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +14,8 @@ public class BoardValidator {
     }
 
 
-    public boolean isColumnExist(Long id) {
-        return boardRepository.existsById(id);
+    public void validate(Long id) {
+        boardRepository.findById(id).orElseThrow(
+                () -> new BoardNotFoundExceptionTrello("Board with id " + id + " not found"));
     }
 }

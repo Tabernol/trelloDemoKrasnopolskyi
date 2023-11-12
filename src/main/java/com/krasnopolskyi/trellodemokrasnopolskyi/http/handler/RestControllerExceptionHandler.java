@@ -1,7 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.http.handler;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -23,7 +22,7 @@ public class RestControllerExceptionHandler extends ResponseEntityExceptionHandl
             WebRequest request) {
 
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
@@ -32,13 +31,4 @@ public class RestControllerExceptionHandler extends ResponseEntityExceptionHandl
         return ResponseEntity.badRequest().body(errors);
     }
 }
-
-
-//    @ExceptionHandler(ValidationException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public Map<String, String> handleValidationException(ValidationException ex) {
-//        Map<String, String> errors = new HashMap<>();
-//        errors.put(ex.getFieldName(), ex.getMessage());
-//        return errors;
-//    }
 

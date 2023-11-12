@@ -1,6 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.validator;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskPostDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,8 @@ public class ColumnValidator {
     }
 
 
-    public boolean isColumnExist(Long id) {
-        return columnRepository.existsById(id);
+    public void validate(Long id) {
+        columnRepository.findById(id)
+                .orElseThrow(() -> new ColumnNotFoundExceptionTrello("Column with id " + id + " not found"));
     }
 }

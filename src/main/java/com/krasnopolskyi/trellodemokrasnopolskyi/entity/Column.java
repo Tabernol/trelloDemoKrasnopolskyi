@@ -6,8 +6,8 @@ import lombok.*;
 
 import java.util.List;
 
-@Data
-@ToString(exclude =  "tasks")
+@Getter
+@Setter
 @Entity
 @Builder
 @NoArgsConstructor
@@ -21,6 +21,7 @@ public class Column {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
+    @JsonIgnore
     private Board board;
 
     @OneToMany(mappedBy = "column")
