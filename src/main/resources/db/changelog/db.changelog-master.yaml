@@ -1,5 +1,7 @@
 databaseChangeLog:
   - include:
-      - file: db/changelog/db.changelog-create-board-column-task.sql
+      - file: db/changelog/db.changelog-create-boards-columns-tasks.sql
   - include:
       - file: db/changelog/db.changelog-insert-data.sql
+  - include:
+      - file: db/changelog/db.changelog-create-tasksOrder.sql
