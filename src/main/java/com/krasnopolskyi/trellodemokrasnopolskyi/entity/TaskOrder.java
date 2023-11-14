@@ -1,25 +1,29 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "tasks_order", schema = "krasnopolskyi")
 public class TaskOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "column_id")
-    private Column column;
+    //    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "column_id")
+    @jakarta.persistence.Column(name = "column_id")
+    private Long columnId;
 
-    @ManyToOne
-    @JoinColumn(name = "task_id")
-    private Task task;
+    //    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "task_id")
+    @jakarta.persistence.Column(name = "task_id")
+    private Long taskId;
 
     private int orderIndex;
 }
