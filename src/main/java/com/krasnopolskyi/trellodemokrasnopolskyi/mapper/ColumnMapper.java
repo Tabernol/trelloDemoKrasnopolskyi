@@ -1,8 +1,8 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.mapper;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnEditDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnPostDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnCreateRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import org.springframework.stereotype.Component;
@@ -11,23 +11,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ColumnMapper implements BaseMapper<Column, ColumnReadDto, ColumnPostDto> {
+public class ColumnMapper implements BaseMapper<Column, ColumnReadResponse, ColumnCreateRequest> {
 
-    public Column mapToEntity(ColumnPostDto columnPostDto) {
+    public Column mapToEntity(ColumnCreateRequest columnCreateRequest) {
         return Column.builder()
-                .name(columnPostDto.getName())
-                .board(Board.builder().id(columnPostDto.getBoardId()).build())
+                .name(columnCreateRequest.getName())
+                .board(Board.builder().id(columnCreateRequest.getBoardId()).build())
                 .build();
     }
 
-    public Column mapToEntity(ColumnEditDto columnEditDto) {
+    public Column mapToEntity(ColumnEditRequest columnEditRequest) {
         return Column.builder()
-                .name(columnEditDto.getName())
+                .name(columnEditRequest.getName())
                 .build();
     }
 
-    public ColumnReadDto mapToDto(Column column) {
-        return ColumnReadDto.builder()
+    public ColumnReadResponse mapToDto(Column column) {
+        return ColumnReadResponse.builder()
                 .id(column.getId())
                 .name(column.getName())
                 .boardId(column.getBoard().getId())
@@ -35,8 +35,8 @@ public class ColumnMapper implements BaseMapper<Column, ColumnReadDto, ColumnPos
                 .build();
     }
 
-    public List<ColumnReadDto> mapAll(List<Column> source) {
-        List<ColumnReadDto> result = new ArrayList<>();
+    public List<ColumnReadResponse> mapAll(List<Column> source) {
+        List<ColumnReadResponse> result = new ArrayList<>();
         for (Column column : source) {
             result.add(mapToDto(column));
         }

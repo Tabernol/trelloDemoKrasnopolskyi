@@ -1,21 +1,23 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto;
 
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.List;
-
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardReadDto {
-    private Long id;
+public class BoardCreateRequest {
+    @NotBlank
+    @Size(min = 2, max = 64)
     private String name;
+    @Email
+    @Size(max = 64)
     private String owner;
-    private List<Column> columns;
 }

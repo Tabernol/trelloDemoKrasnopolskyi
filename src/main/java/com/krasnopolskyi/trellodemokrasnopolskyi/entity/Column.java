@@ -26,9 +26,4 @@ public class Column {
 
     @OneToMany(mappedBy = "column")
     private List<Task> tasks;
-
-//    @OneToMany(mappedBy = "columnId")
-//    private List<Task> tasks;
-
-
 }

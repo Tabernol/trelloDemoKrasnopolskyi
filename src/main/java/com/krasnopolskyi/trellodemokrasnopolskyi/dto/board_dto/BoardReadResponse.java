@@ -1,18 +1,21 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
+
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardEditDto {
-    @NotBlank
-    @Size(min = 2, max = 64)
+public class BoardReadResponse {
+    private Long id;
     private String name;
+    private String owner;
+    private List<Column> columns;
 }

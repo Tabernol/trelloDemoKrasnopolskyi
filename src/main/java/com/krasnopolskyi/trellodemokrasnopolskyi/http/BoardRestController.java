@@ -1,13 +1,14 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.http;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardEditDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardPostDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardReadDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardCreateRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloEntityNotFoundException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.BoardMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.BoardService;
-import com.krasnopolskyi.trellodemokrasnopolskyi.validator.BoardValidator;
+import jakarta.validation.constraints.Min;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,19 +23,21 @@ import static org.springframework.http.ResponseEntity.notFound;
 
 @RestController
 @RequestMapping("/api/v1/boards")
+@Validated()
+@Slf4j
 public class BoardRestController {
     private final BoardService boardService;
     private final BoardMapper boardMapper;
-    private final BoardValidator boardValidator;
 
-    public BoardRestController(BoardService boardService, BoardMapper boardMapper, BoardValidator boardValidator) {
+    public BoardRestController(BoardService boardService,
+                               BoardMapper boardMapper) {
         this.boardService = boardService;
         this.boardMapper = boardMapper;
-        this.boardValidator = boardValidator;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BoardReadDto> get(@PathVariable("id") Long id) {
+    public ResponseEntity<BoardReadResponse> get(
+            @PathVariable("id") @Min(1) Long id) {
         try {
             return ResponseEntity.ok(boardMapper.mapToDto(boardService.findById(id)));
         } catch (TrelloEntityNotFoundException e) {
@@ -43,7 +46,7 @@ public class BoardRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BoardReadDto>> getAll() {
+    public ResponseEntity<List<BoardReadResponse>> getAll() {
         return ResponseEntity.ok(boardMapper.mapAll(boardService.findAll()));
 
     }
@@ -52,19 +55,22 @@ public class BoardRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Board> create(
             @Validated()
-            @RequestBody BoardPostDto boardPostDto) {
-        Board board = boardMapper.mapToEntity(boardPostDto);
-        return ResponseEntity.ok(boardService.create(board));
+            @RequestBody BoardCreateRequest boardCreateRequest) {
+        Board board = boardMapper.mapToEntity(boardCreateRequest);
+        try {
+            return ResponseEntity.ok(boardService.create(board));
+        } catch (TrelloEntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BoardReadDto> update(
-            @PathVariable("id") Long id,
+    public ResponseEntity<BoardReadResponse> update(
+            @PathVariable("id") @Min(1) Long id,
             @Validated()
-            @RequestBody BoardEditDto boardEditDto) {
+            @RequestBody BoardEditRequest boardEditRequest) {
         try {
-            boardValidator.validate(id);
-            Board board = boardMapper.mapToEntity(boardEditDto);
+            Board board = boardMapper.mapToEntity(boardEditRequest);
             return ResponseEntity.ok(boardMapper.mapToDto(boardService.update(board, id)));
         } catch (TrelloEntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -72,7 +78,7 @@ public class BoardRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") long id) {
+    public ResponseEntity<?> delete(@PathVariable("id") @Min(1) Long id) {
         return boardService.delete(id) ? noContent().build() : notFound().build();
     }
 }

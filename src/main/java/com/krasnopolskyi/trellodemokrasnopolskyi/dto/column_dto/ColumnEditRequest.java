@@ -1,7 +1,6 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto;
+package com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto;
 
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -13,11 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardPostDto {
-    @NotBlank
+public class ColumnEditRequest {
     @Size(min = 2, max = 64)
+    @NotBlank()
     private String name;
-    @Email
-    @Size(max = 64)
-    private String owner;
 }

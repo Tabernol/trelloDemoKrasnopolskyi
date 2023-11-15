@@ -6,15 +6,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BoardValidator {
-
     private final BoardRepository boardRepository;
 
     public BoardValidator(BoardRepository boardRepository) {
         this.boardRepository = boardRepository;
     }
 
-
-    public void validate(Long id) {
+    public void validate(Long id) throws BoardNotFoundExceptionTrello {
         boardRepository.findById(id).orElseThrow(
                 () -> new BoardNotFoundExceptionTrello("Board with id " + id + " not found"));
     }

@@ -1,5 +1,4 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto;
-
+package com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -12,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ColumnEditDto {
+public class BoardEditRequest {
+    @NotBlank
     @Size(min = 2, max = 64)
-    @NotBlank()
     private String name;
 }

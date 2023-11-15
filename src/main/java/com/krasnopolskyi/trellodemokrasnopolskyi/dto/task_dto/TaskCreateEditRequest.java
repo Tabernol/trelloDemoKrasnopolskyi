@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskPostDto {
+public class TaskCreateEditRequest {
 
     @Size(min = 2, max = 64)
     @NotBlank(groups = {CreateValidationGroup.class})

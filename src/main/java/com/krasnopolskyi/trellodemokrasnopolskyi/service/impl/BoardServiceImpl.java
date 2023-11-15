@@ -20,7 +20,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Board findById(Long id) {
+    public Board findById(Long id) throws BoardNotFoundExceptionTrello {
         return boardRepository.findById(id).orElseThrow(
                 () -> new BoardNotFoundExceptionTrello("Board with id " + id + " not found"));
     }
@@ -37,7 +37,8 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Board update(Board board, Long id) {
+    @Transactional
+    public Board update(Board board, Long id) throws BoardNotFoundExceptionTrello {
         Board existingBoard = findById(id);
             if (board.getName() != null) {
                 existingBoard.setName(board.getName());

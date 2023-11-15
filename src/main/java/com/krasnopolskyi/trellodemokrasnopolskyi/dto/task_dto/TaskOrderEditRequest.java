@@ -6,17 +6,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderTaskDto {
+public class TaskOrderEditRequest {
     @Min(value = 1)
     @NotNull
     private Long taskId;
+
     private Long columnId;
+
     @Min(value = 1)
     @NotNull
     private Integer newOrderIndex;

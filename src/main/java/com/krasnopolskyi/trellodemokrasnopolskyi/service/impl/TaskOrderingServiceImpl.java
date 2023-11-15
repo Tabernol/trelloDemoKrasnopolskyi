@@ -34,6 +34,7 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
 
 
     @Override
+    @Transactional
     public TaskOrder insert(Task task) {
         int size = taskRepository.findAllByColumn(task.getColumn().getId()).size();
         TaskOrder taskOrder = TaskOrder.builder()
@@ -47,31 +48,18 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
     @Override
     public List<Task> findAllByColumnByUserOrder(Long columnId) {
         List<Task> listOfTask = taskRepository.findAllByColumn(columnId);// none sorted
-        log.info(listOfTask.toString());
+
         List<Long> userOrder = findAllIdTasksByColumnInUserOrder(columnId);//only id of Task in user order
-        log.info(userOrder.toString());
+
         Map<Long, Task> tasks = listOfTask
                 .stream()
                 .collect(Collectors.toMap((Task::getId), Function.identity()));
 
-        List<Task> sortedTasks = userOrder
+        return userOrder
                 .stream()
                 .map(tasks::get)
                 .collect(Collectors.toList());
-
-        return sortedTasks;
     }
-
-//    @Override
-//    public TaskOrder insert(Task task) {
-//        int size = taskRepository.findAllByColumn(task.getColumnId()).size();
-//        TaskOrder taskOrder = TaskOrder.builder()
-//                .taskId(task.getId())
-//                .columnId(task.getColumnId())
-//                .orderIndex(size)
-//                .build();
-//        return taskOrderRepository.save(taskOrder);
-//    }
 
 
     @Override
@@ -84,7 +72,7 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
 
     @Override
     @Transactional
-    public int moveTask(TaskOrder taskOrder) {
+    public int moveTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello {
         Task task = getTask(taskOrder);
         Long sourceColumnId = task.getColumn().getId();
         Long targetColumnId = taskOrder.getColumnId();
@@ -107,7 +95,7 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         }
     }
 
-    private Task getTask(TaskOrder taskOrder) {
+    private Task getTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello {
         return taskRepository.findById(taskOrder.getTaskId())
                 .orElseThrow(() -> new TaskNotFoundExceptionTrello("Task with id " + taskOrder.getTaskId() + " not found"));
 
@@ -117,11 +105,10 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         for (int i = 0; i < orderedTasks.size(); i++) {
             orderedTasks.get(i).setOrderIndex(i + 1);
         }
-        List<TaskOrder> taskOrders = taskOrderingRepository.saveAllAndFlush(orderedTasks);
-        log.info(taskOrders.toString());
+        taskOrderingRepository.saveAllAndFlush(orderedTasks);
     }
 
-    private void saveTaskWithAnotherColumn(Task task, Long columnId) {
+    private void saveTaskWithAnotherColumn(Task task, Long columnId) throws ColumnNotFoundExceptionTrello {
         Column column = columnRepository.findById(columnId).orElseThrow(
                 () -> new ColumnNotFoundExceptionTrello("Column with id " + columnId + " not found"));
 
@@ -136,31 +123,28 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
 
     private int reorder(List<TaskOrder> currentColumn, TaskOrder taskOrder) {
         //only change order in column
-        taskOrder.setOrderIndex(getLastIndex(currentColumn, taskOrder));
+        checkIndex(currentColumn, taskOrder);
         currentColumn.add(taskOrder.getOrderIndex() - 1, taskOrder);
         updateOrderIndexesAndSave(currentColumn);
         return currentColumn.size();
     }
 
-    private int moveToAnotherColumn(TaskOrder taskOrder) {
+    private int moveToAnotherColumn(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello {
         Task task = getTask(taskOrder);
         saveTaskWithAnotherColumn(task, taskOrder.getColumnId());
 
         List<TaskOrder> targetColumn = getTasksByColumnId(taskOrder.getColumnId());
 
-        taskOrder.setOrderIndex(getLastIndex(targetColumn, taskOrder));
+        checkIndex(targetColumn, taskOrder);
         targetColumn.add(taskOrder.getOrderIndex() - 1, taskOrder);
         updateOrderIndexesAndSave(targetColumn);
         return targetColumn.size();
     }
 
 
-    private int getLastIndex(List<TaskOrder> taskOrderList, TaskOrder taskOrder) {
+    private void checkIndex(List<TaskOrder> taskOrderList, TaskOrder taskOrder) {
         if (taskOrder.getOrderIndex() > taskOrderList.size()) {
-            log.info("change orderIndex to = " + (taskOrderList.size() + 1));
-            return taskOrderList.size() + 1;
-        } else {
-            return taskOrder.getOrderIndex();
+            taskOrder.setOrderIndex(taskOrderList.size() + 1);
         }
     }
 }

@@ -33,7 +33,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task findById(Long id) {
+    public Task findById(Long id) throws TaskNotFoundExceptionTrello {
         return taskRepository.findById(id)
                 .orElseThrow(()
                         -> new TaskNotFoundExceptionTrello("Task with id " + id + " not found"));
@@ -43,27 +43,6 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> findAll() {
         return taskRepository.findAll();
     }
-
-//    @Override
-//    public List<Task> findAllByColumn(Long columnId) {
-//        return taskRepository.findAllByColumn(columnId);
-//    }
-
-//    @Override
-//    public List<Task> findAllByColumnByUserOrder(Long columnId) {
-//        List<Task> listOfTask = taskRepository.findAllByColumn(columnId);// none sorted
-//        List<Long> userOrder = taskOrderService.findAllIdTasksByColumnInUserOrder(columnId);//only id of Task in user order
-//        Map<Long, Task> tasks = listOfTask
-//                .stream()
-//                .collect(Collectors.toMap((Task::getId), Function.identity()));
-//
-//        List<Task> sortedTasks = userOrder
-//                .stream()
-//                .map(tasks::get)
-//                .collect(Collectors.toList());
-//
-//        return sortedTasks;
-//    }
 
     @Override
     @Transactional
@@ -77,7 +56,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public Task update(Task task, Long id) {
+    public Task update(Task task, Long id) throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
         Task existingTask = findById(id);
 
         if (task.getName() != null) {
@@ -91,15 +70,10 @@ public class TaskServiceImpl implements TaskService {
         if (task.getColumn() != null) {
             Column column = columnRepository.findById(task.getColumn().getId())
                     .orElseThrow(()
-                            -> new ColumnNotFoundExceptionTrello("Column with id " + task.getColumn().getId() + " not found"));
+                            -> new ColumnNotFoundExceptionTrello(
+                                    "Column with id " + task.getColumn().getId() + " not found"));
             existingTask.setColumn(column);
         }
-//        if (task.getColumnId() != null) {
-//            Column column = columnRepository.findById(task.getColumnId())
-//                    .orElseThrow(()
-//                            -> new ColumnNotFoundExceptionTrello("Column with id " + task.getColumnId() + " not found"));
-//            existingTask.setColumnId(column.getId());
-//        }
 
         return taskRepository.save(existingTask);
     }

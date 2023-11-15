@@ -35,14 +35,5 @@ public class TaskOrder {
     public int hashCode() {
         return Objects.hash(taskId, columnId);
     }
-
-    @Override
-    public String toString() {
-        return "TaskOrder{" +
-                "taskId=" + taskId +
-                ", columnId=" + columnId +
-                ", orderIndex=" + orderIndex +
-                '}';
-    }
 }
 

@@ -1,6 +1,7 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.validator.CreateValidationGroup;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,10 +11,10 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ColumnPostDto {
+public class ColumnCreateRequest {
     @Size(min = 2, max = 64)
-    @NotBlank(groups = {CreateValidationGroup.class})
+    @NotBlank()
     private String name;
-    @NotNull(groups = {CreateValidationGroup.class})
+    @Min(value = 1)
     private Long boardId;
 }

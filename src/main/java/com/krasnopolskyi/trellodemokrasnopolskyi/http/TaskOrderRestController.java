@@ -1,18 +1,25 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.http;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskOrderEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.TaskOrder;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloEntityNotFoundException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskOrderingService;
+import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/columns")
+@Validated()
 @Slf4j
 public class TaskOrderRestController {
     private final TaskOrderingService taskOrderingService;
@@ -26,27 +33,42 @@ public class TaskOrderRestController {
     }
 
     @GetMapping("/{columnId}/tasks/order")
-    public ResponseEntity<List<TaskReadDto>> getOrderedTasks(@PathVariable Long columnId) {
+    public ResponseEntity<List<TaskReadResponse>> getOrderedTasks(
+            @PathVariable @Min(1) Long columnId) {
         List<Task> sortedTask = taskOrderingService.findAllByColumnByUserOrder(columnId);
         return ResponseEntity.ok(taskMapper.mapAll(sortedTask));
     }
 
 
-    @PostMapping("/tasks/move")
-    public ResponseEntity<Void> moveTask(
-            @RequestBody TaskOrder taskOrder) {
-        int updatedRow = taskOrderingService.moveTask(taskOrder);
+    @PutMapping("/tasks/{taskId}/move")
+    public ResponseEntity<String> moveTask(
+            @PathVariable("taskId") @Min(1) Long taskId,
+            @Validated()
+            @RequestBody TaskOrderEditRequest taskOrderEditRequest) {
+
+        //maybe do it with AOP
+        if (!taskId.equals(taskOrderEditRequest.getTaskId())) {
+            return ResponseEntity.badRequest().body("Mismatched task IDs");
+        }
+
+        TaskOrder taskOrder = TaskOrder.builder()
+                .taskId(taskOrderEditRequest.getTaskId())
+                .columnId(taskOrderEditRequest.getColumnId())
+                .orderIndex(taskOrderEditRequest.getNewOrderIndex())
+                .build();
+
+
+        int updatedRow = 0;
+        try {
+            updatedRow = taskOrderingService.moveTask(taskOrder);
+        } catch (TrelloEntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+
 
         log.info("updated row = " + updatedRow);
-        return ResponseEntity.ok().build();
+        return updatedRow > 0 ?
+                ResponseEntity.ok("Task moved successfully") :
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Task move failed");
     }
-
-
-//    @PostMapping("/api/columns/{columnId}/tasks/order/move")
-//    public ResponseEntity<Void> moveTaskToAnotherColumn(
-//            @PathVariable Long columnId,
-//            @RequestBody MoveRequest moveRequest) {
-//        tasksOrderService.moveTaskToAnotherColumn(columnId, moveRequest.getTaskId(), moveRequest.getNewOrderIndex());
-//        return ResponseEntity.ok().build();
-//    }
 }

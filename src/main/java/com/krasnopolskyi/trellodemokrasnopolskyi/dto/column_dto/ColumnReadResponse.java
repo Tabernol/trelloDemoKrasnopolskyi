@@ -1,8 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ColumnReadDto {
+public class ColumnReadResponse {
     private Long id;
     private String name;
     private Long boardId;

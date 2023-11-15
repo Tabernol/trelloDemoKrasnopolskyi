@@ -9,7 +9,7 @@ public interface BaseService<T> {
 
     T findById(Long id) throws TrelloEntityNotFoundException;
 
-    T create(T entity);
+    T create(T entity) throws TrelloEntityNotFoundException;
 
     List<T> findAll();
 

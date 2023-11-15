@@ -1,8 +1,8 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.mapper;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardEditDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardPostDto;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardReadDto;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardCreateRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import org.springframework.stereotype.Component;
 
@@ -10,24 +10,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class BoardMapper implements BaseMapper<Board, BoardReadDto, BoardPostDto> {
+public class BoardMapper implements BaseMapper<Board, BoardReadResponse, BoardCreateRequest> {
 
-    public Board mapToEntity(BoardPostDto boardPostDto) {
+    public Board mapToEntity(BoardCreateRequest boardCreateRequest) {
         return Board.builder()
-                .name(boardPostDto.getName())
-                .owner(boardPostDto.getOwner())
+                .name(boardCreateRequest.getName())
+                .owner(boardCreateRequest.getOwner())
                 .build();
     }
 
-    public Board mapToEntity(BoardEditDto boardEditDto) {
+    public Board mapToEntity(BoardEditRequest boardEditRequest) {
         return Board.builder()
-                .name(boardEditDto.getName())
+                .name(boardEditRequest.getName())
                 .build();
     }
 
 
-    public BoardReadDto mapToDto(Board board) {
-        return BoardReadDto.builder()
+    public BoardReadResponse mapToDto(Board board) {
+        return BoardReadResponse.builder()
                 .id(board.getId())
                 .name(board.getName())
                 .owner(board.getOwner())
@@ -36,8 +36,8 @@ public class BoardMapper implements BaseMapper<Board, BoardReadDto, BoardPostDto
 
     }
 
-    public List<BoardReadDto> mapAll(List<Board> source) {
-        List<BoardReadDto> result = new ArrayList<>();
+    public List<BoardReadResponse> mapAll(List<Board> source) {
+        List<BoardReadResponse> result = new ArrayList<>();
         for (Board board : source) {
             result.add(mapToDto(board));
         }

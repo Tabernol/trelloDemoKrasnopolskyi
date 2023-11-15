@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskReadDto {
+public class TaskReadResponse {
     private Long id;
     private String name;
     private String description;
