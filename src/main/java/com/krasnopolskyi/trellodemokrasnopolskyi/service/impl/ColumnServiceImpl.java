@@ -3,6 +3,7 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
+import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +16,12 @@ public class ColumnServiceImpl implements ColumnService {
 
     private final ColumnRepository columnRepository;
 
-    public ColumnServiceImpl(ColumnRepository columnRepository) {
+    private final ColumnOrderingService columnOrderingService;
+
+    public ColumnServiceImpl(ColumnRepository columnRepository,
+                             ColumnOrderingService columnOrderingService) {
         this.columnRepository = columnRepository;
+        this.columnOrderingService = columnOrderingService;
     }
 
     @Override
@@ -34,7 +39,10 @@ public class ColumnServiceImpl implements ColumnService {
     @Override
     @Transactional
     public Column create(Column entity) {
-        return columnRepository.save(entity);
+        Column column = columnRepository.saveAndFlush(entity);
+        // insert to columns_ordering table
+        columnOrderingService.insert(column);
+        return column;
     }
 
 

@@ -6,7 +6,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExcepti
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TaskNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskRepository;
-import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskOrderService;
+import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskOrderingService;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,25 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 
 @Service
 @Slf4j
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
-    private final TaskOrderService taskOrderService;
+    private final TaskOrderingService taskOrderingService;
     private final ColumnRepository columnRepository;
 
     public TaskServiceImpl(TaskRepository taskRepository,
-                           TaskOrderService taskOrderService,
+                           TaskOrderingService taskOrderingService,
                            ColumnRepository columnRepository) {
         this.taskRepository = taskRepository;
-        this.taskOrderService = taskOrderService;
+        this.taskOrderingService = taskOrderingService;
         this.columnRepository = columnRepository;
     }
 
@@ -74,8 +70,8 @@ public class TaskServiceImpl implements TaskService {
     public Task create(Task entity) {
         entity.setDateOfCreation(LocalDateTime.now());
         Task task = taskRepository.saveAndFlush(entity);
-        //insert into task_order table
-        taskOrderService.insert(task);
+        //insert into tasks_ordering table
+        taskOrderingService.insert(task);
         return task;
     }
 

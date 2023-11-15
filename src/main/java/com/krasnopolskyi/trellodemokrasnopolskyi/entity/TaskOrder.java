@@ -11,7 +11,7 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "tasks_order", schema = "krasnopolskyi")
+@Table(name = "tasks_ordering", schema = "krasnopolskyi")
 public class TaskOrder {
     @Id
     @jakarta.persistence.Column(name = "task_id")
@@ -34,6 +34,15 @@ public class TaskOrder {
     @Override
     public int hashCode() {
         return Objects.hash(taskId, columnId);
+    }
+
+    @Override
+    public String toString() {
+        return "TaskOrder{" +
+                "taskId=" + taskId +
+                ", columnId=" + columnId +
+                ", orderIndex=" + orderIndex +
+                '}';
     }
 }
 

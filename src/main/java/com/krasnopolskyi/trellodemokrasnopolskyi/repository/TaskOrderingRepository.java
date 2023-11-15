@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface TaskOrderRepository extends JpaRepository<TaskOrder, Long> {
+public interface TaskOrderingRepository extends JpaRepository<TaskOrder, Long> {
 
-    List<TaskOrder> findAllByColumnIdOrderByOrderIndex(Long id);
+    List<TaskOrder> findAllByColumnIdOrderByOrderIndex(Long columnId);
 }

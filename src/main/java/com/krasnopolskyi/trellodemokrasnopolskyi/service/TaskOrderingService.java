@@ -5,7 +5,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.entity.TaskOrder;
 
 import java.util.List;
 
-public interface TaskOrderService {
+public interface TaskOrderingService {
 
     TaskOrder insert(Task task);
     List<Task> findAllByColumnByUserOrder(Long columnId);

@@ -6,11 +6,12 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.entity.TaskOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TaskNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
-import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskOrderRepository;
+import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskRepository;
-import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskOrderService;
+import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskOrderingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.function.Function;
@@ -18,14 +19,15 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class TaskOrderServiceImpl implements TaskOrderService {
-    private final TaskOrderRepository taskOrderRepository;
+public class TaskOrderingServiceImpl implements TaskOrderingService {
+    private final TaskOrderingRepository taskOrderingRepository;
     private final TaskRepository taskRepository;
-
     private final ColumnRepository columnRepository;
 
-    public TaskOrderServiceImpl(TaskOrderRepository taskOrderRepository, TaskRepository taskRepository, ColumnRepository columnRepository) {
-        this.taskOrderRepository = taskOrderRepository;
+    public TaskOrderingServiceImpl(TaskOrderingRepository taskOrderingRepository,
+                                   TaskRepository taskRepository,
+                                   ColumnRepository columnRepository) {
+        this.taskOrderingRepository = taskOrderingRepository;
         this.taskRepository = taskRepository;
         this.columnRepository = columnRepository;
     }
@@ -39,13 +41,15 @@ public class TaskOrderServiceImpl implements TaskOrderService {
                 .columnId(task.getColumn().getId())
                 .orderIndex(size)
                 .build();
-        return taskOrderRepository.save(taskOrder);
+        return taskOrderingRepository.save(taskOrder);
     }
 
     @Override
     public List<Task> findAllByColumnByUserOrder(Long columnId) {
         List<Task> listOfTask = taskRepository.findAllByColumn(columnId);// none sorted
+        log.info(listOfTask.toString());
         List<Long> userOrder = findAllIdTasksByColumnInUserOrder(columnId);//only id of Task in user order
+        log.info(userOrder.toString());
         Map<Long, Task> tasks = listOfTask
                 .stream()
                 .collect(Collectors.toMap((Task::getId), Function.identity()));
@@ -72,45 +76,34 @@ public class TaskOrderServiceImpl implements TaskOrderService {
 
     @Override
     public List<Long> findAllIdTasksByColumnInUserOrder(Long columnId) {
-        return taskOrderRepository.findAllByColumnIdOrderByOrderIndex(columnId)
+        return taskOrderingRepository.findAllByColumnIdOrderByOrderIndex(columnId)
                 .stream()
                 .map(taskOrder -> taskOrder.getTaskId())
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public int moveTask(TaskOrder taskOrder) {
         Task task = getTask(taskOrder);
-        //if columnId == null
-        if (taskOrder.getColumnId() == null) {
-            taskOrder.setColumnId(task.getColumn().getId());
+        Long sourceColumnId = task.getColumn().getId();
+        Long targetColumnId = taskOrder.getColumnId();
+
+        if (targetColumnId == null) {
+            taskOrder.setColumnId(sourceColumnId);
         }
 
-        List<TaskOrder> sourceColumn =
-                new LinkedList<>(taskOrderRepository.findAllByColumnIdOrderByOrderIndex(task.getColumn().getId()));
-
+        List<TaskOrder> sourceColumn = getTasksByColumnId(sourceColumnId);
         sourceColumn.remove(taskOrder);
 
-
-        if (Objects.equals(taskOrder.getColumnId(), task.getColumn().getId()) || taskOrder.getColumnId() == null) {
+        if (Objects.equals(targetColumnId, sourceColumnId)) {
             //only change order in column
-            sourceColumn.add(taskOrder.getOrderIndex() - 1, taskOrder);
-
-            updateOrderIndexesAndSave(sourceColumn);
-
-            return sourceColumn.size();
+            return reorder(sourceColumn, taskOrder);
         } else {
             // move task to another column
             updateOrderIndexesAndSave(sourceColumn);
-            log.info("========updating source column finished");
-
-            saveTaskWithAnotherColumn(task, taskOrder.getColumnId());
-
-            List<TaskOrder> targetColumn =
-                    new LinkedList<>(taskOrderRepository.findAllByColumnIdOrderByOrderIndex(taskOrder.getColumnId()));
-            targetColumn.add(taskOrder.getOrderIndex() - 1, taskOrder);
-            updateOrderIndexesAndSave(targetColumn);
-            return sourceColumn.size() + targetColumn.size();
+            int rowUpdated = moveToAnotherColumn(taskOrder);
+            return sourceColumn.size() + rowUpdated;
         }
     }
 
@@ -124,7 +117,8 @@ public class TaskOrderServiceImpl implements TaskOrderService {
         for (int i = 0; i < orderedTasks.size(); i++) {
             orderedTasks.get(i).setOrderIndex(i + 1);
         }
-        taskOrderRepository.saveAllAndFlush(orderedTasks);
+        List<TaskOrder> taskOrders = taskOrderingRepository.saveAllAndFlush(orderedTasks);
+        log.info(taskOrders.toString());
     }
 
     private void saveTaskWithAnotherColumn(Task task, Long columnId) {
@@ -135,12 +129,38 @@ public class TaskOrderServiceImpl implements TaskOrderService {
         taskRepository.saveAndFlush(task);
     }
 
+    private List<TaskOrder> getTasksByColumnId(Long columnId) {
+        return new LinkedList<>(taskOrderingRepository
+                .findAllByColumnIdOrderByOrderIndex(columnId));
+    }
 
-//    private void updateOrderIndexes(List<TaskOrder> orderList) {
-//        for (int i = 0; i < orderList.size(); i++) {
-//            orderList.get(i).setOrderIndex(i + 1);
-//        }
-//    }
+    private int reorder(List<TaskOrder> currentColumn, TaskOrder taskOrder) {
+        //only change order in column
+        taskOrder.setOrderIndex(getLastIndex(currentColumn, taskOrder));
+        currentColumn.add(taskOrder.getOrderIndex() - 1, taskOrder);
+        updateOrderIndexesAndSave(currentColumn);
+        return currentColumn.size();
+    }
+
+    private int moveToAnotherColumn(TaskOrder taskOrder) {
+        Task task = getTask(taskOrder);
+        saveTaskWithAnotherColumn(task, taskOrder.getColumnId());
+
+        List<TaskOrder> targetColumn = getTasksByColumnId(taskOrder.getColumnId());
+
+        taskOrder.setOrderIndex(getLastIndex(targetColumn, taskOrder));
+        targetColumn.add(taskOrder.getOrderIndex() - 1, taskOrder);
+        updateOrderIndexesAndSave(targetColumn);
+        return targetColumn.size();
+    }
 
 
+    private int getLastIndex(List<TaskOrder> taskOrderList, TaskOrder taskOrder) {
+        if (taskOrder.getOrderIndex() > taskOrderList.size()) {
+            log.info("change orderIndex to = " + (taskOrderList.size() + 1));
+            return taskOrderList.size() + 1;
+        } else {
+            return taskOrder.getOrderIndex();
+        }
+    }
 }
