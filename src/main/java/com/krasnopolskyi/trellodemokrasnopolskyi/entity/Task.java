@@ -25,4 +25,7 @@ public class Task {
     @JoinColumn(name = "column_id")
     @JsonIgnore
     private Column column;
+
+//    @jakarta.persistence.Column(name = "column_id")
+//    private Long columnId;
 }

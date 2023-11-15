@@ -53,27 +53,27 @@ public class TaskServiceImpl implements TaskService {
 //        return taskRepository.findAllByColumn(columnId);
 //    }
 
-    @Override
-    public List<Task> findAllByColumnByUserOrder(Long columnId) {
-        List<Task> listOfTask = taskRepository.findAllByColumn(columnId);// none sorted
-        List<Long> userOrder = taskOrderService.findAllIdTasksByColumnInUserOrder(columnId);//only id of Task in user order
-        Map<Long, Task> tasks = listOfTask
-                .stream()
-                .collect(Collectors.toMap((Task::getId), Function.identity()));
-
-        List<Task> sortedTasks = userOrder
-                .stream()
-                .map(tasks::get)
-                .collect(Collectors.toList());
-
-        return sortedTasks;
-    }
+//    @Override
+//    public List<Task> findAllByColumnByUserOrder(Long columnId) {
+//        List<Task> listOfTask = taskRepository.findAllByColumn(columnId);// none sorted
+//        List<Long> userOrder = taskOrderService.findAllIdTasksByColumnInUserOrder(columnId);//only id of Task in user order
+//        Map<Long, Task> tasks = listOfTask
+//                .stream()
+//                .collect(Collectors.toMap((Task::getId), Function.identity()));
+//
+//        List<Task> sortedTasks = userOrder
+//                .stream()
+//                .map(tasks::get)
+//                .collect(Collectors.toList());
+//
+//        return sortedTasks;
+//    }
 
     @Override
     @Transactional
     public Task create(Task entity) {
         entity.setDateOfCreation(LocalDateTime.now());
-        Task task = taskRepository.save(entity);
+        Task task = taskRepository.saveAndFlush(entity);
         //insert into task_order table
         taskOrderService.insert(task);
         return task;
@@ -98,6 +98,12 @@ public class TaskServiceImpl implements TaskService {
                             -> new ColumnNotFoundExceptionTrello("Column with id " + task.getColumn().getId() + " not found"));
             existingTask.setColumn(column);
         }
+//        if (task.getColumnId() != null) {
+//            Column column = columnRepository.findById(task.getColumnId())
+//                    .orElseThrow(()
+//                            -> new ColumnNotFoundExceptionTrello("Column with id " + task.getColumnId() + " not found"));
+//            existingTask.setColumnId(column.getId());
+//        }
 
         return taskRepository.save(existingTask);
     }

@@ -18,6 +18,7 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto, TaskPostDto> {
                 .name(task.getName())
                 .description(task.getDescription())
                 .dateOfCreation(task.getDateOfCreation())
+ //               .columnId(task.getColumnId())
                 .columnId(task.getColumn().getId())
                 .build();
     }
@@ -26,6 +27,7 @@ public class TaskMapper implements BaseMapper<Task, TaskReadDto, TaskPostDto> {
         return Task.builder()
                 .name(taskPostDto.getName())
                 .description(taskPostDto.getDescription())
+//                .columnId(taskPostDto.getColumnId())
                 .column(Column.builder().id(taskPostDto.getColumnId()).build())
                 .build();
     }

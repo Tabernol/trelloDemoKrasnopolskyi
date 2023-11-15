@@ -8,6 +8,9 @@ import java.util.List;
 public interface TaskOrderService {
 
     TaskOrder insert(Task task);
+    List<Task> findAllByColumnByUserOrder(Long columnId);
 
     List<Long> findAllIdTasksByColumnInUserOrder(Long columnId);
+
+    int moveTask(TaskOrder taskOrder);
 }
