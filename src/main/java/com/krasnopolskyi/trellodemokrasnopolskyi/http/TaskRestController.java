@@ -63,6 +63,7 @@ public class TaskRestController {
     public ResponseEntity<Task> create(
             @Validated({Default.class, CreateValidationGroup.class})
             @RequestBody TaskCreateEditRequest taskCreateEditRequest) {
+        log.info("Create new task : " + taskCreateEditRequest.toString());
         try {
             //Checking existing column
             columnService.findById(taskCreateEditRequest.getColumnId());
@@ -70,6 +71,7 @@ public class TaskRestController {
             Task task = taskMapper.mapToEntity(taskCreateEditRequest);
             return ResponseEntity.ok(taskService.create(task));
         } catch (TrelloEntityNotFoundException e) {
+            log.warn("Something went wrong Task.create " + e);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }

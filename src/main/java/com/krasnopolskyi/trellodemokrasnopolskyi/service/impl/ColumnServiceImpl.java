@@ -24,7 +24,6 @@ public class ColumnServiceImpl implements ColumnService {
             ColumnRepository columnRepository,
             ColumnOrderingService columnOrderingService) {
         this.boardValidator = boardValidator;
-
         this.columnRepository = columnRepository;
         this.columnOrderingService = columnOrderingService;
     }

@@ -12,8 +12,9 @@ public class BoardValidator {
         this.boardRepository = boardRepository;
     }
 
-    public void validate(Long id) throws BoardNotFoundExceptionTrello {
-        boardRepository.findById(id).orElseThrow(
-                () -> new BoardNotFoundExceptionTrello("Board with id " + id + " not found"));
+    public boolean validate(Long id) throws BoardNotFoundExceptionTrello {
+        if (boardRepository.existsById(id)) {
+            return true;
+        } else throw new BoardNotFoundExceptionTrello("Board with id " + id + " not found");
     }
 }
