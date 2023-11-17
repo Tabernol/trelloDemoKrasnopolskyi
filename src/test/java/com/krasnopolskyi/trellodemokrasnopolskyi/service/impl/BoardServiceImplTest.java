@@ -4,7 +4,6 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.BoardNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloEntityNotFoundException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
-import com.krasnopolskyi.trellodemokrasnopolskyi.service.BoardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,30 +24,29 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class BoardServiceImplTest {
-
     @Mock
     private BoardRepository boardRepository;
     @InjectMocks
     private BoardServiceImpl boardService;
-
-    private static final Board MOCK_BOARD_3 = Board.builder()
-            .id(3L)
-            .name("board3")
-            .owner("test@test.ua").build();
+    private Board board;
 
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        board = Board.builder().id(3L).name("board3").owner("test@test.ua").build();
         boardService = new BoardServiceImpl(boardRepository);
     }
 
     @Test
     void testFindById_ExistingBoard_ShouldReturnBoard() throws TrelloEntityNotFoundException {
-        when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(MOCK_BOARD_3));
+        // Arrange
+        when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(board));
 
+        // Act
         Board resultBoard = boardService.findById(3L);
 
+        // Assert
         assertNotNull(resultBoard);
         assertEquals(3L, resultBoard.getId());
         verify(boardRepository, times(1)).findById(3L);
@@ -56,54 +54,66 @@ class BoardServiceImplTest {
 
     @Test
     void testFindById_NonExistingBoard_ShouldThrowException() {
+        // Arrange
         when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
+        // Act and Assert
         assertThrows(BoardNotFoundExceptionTrello.class, () -> boardService.findById(3L));
-
         verify(boardRepository, times(1)).findById(3L);
     }
 
     @Test
     void testFindAll_ShouldReturnListOfBoards() {
-        when(boardRepository.findAll()).thenReturn(Collections.singletonList(MOCK_BOARD_3));
+        // Arrange
+        when(boardRepository.findAll()).thenReturn(Collections.singletonList(board));
 
+        // Act
         List<Board> resultBoards = boardService.findAll();
 
+        // Assert
         assertFalse(resultBoards.isEmpty());
         assertEquals(1, resultBoards.size());
-        assertEquals(MOCK_BOARD_3, resultBoards.get(0));
+        assertEquals(board, resultBoards.get(0));
         verify(boardRepository, times(1)).findAll();
     }
 
     @Test
     void testCreate_ShouldReturnCreatedBoard() {
-        when(boardRepository.save(Mockito.any())).thenReturn(MOCK_BOARD_3);
+        // Arrange
+        when(boardRepository.save(Mockito.any())).thenReturn(board);
 
-        Board createdBoard = boardService.create(MOCK_BOARD_3);
+        // Act
+        Board createdBoard = boardService.create(board);
 
+        // Assert
         assertNotNull(createdBoard);
-        assertEquals(MOCK_BOARD_3, createdBoard);
-        verify(boardRepository, times(1)).save(MOCK_BOARD_3);
+        assertEquals(board, createdBoard);
+        verify(boardRepository, times(1)).save(board);
     }
 
     @Test
     void testUpdate_ExistingBoard_ShouldReturnUpdatedBoard() throws BoardNotFoundExceptionTrello {
-        when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(MOCK_BOARD_3));
-        when(boardRepository.save(Mockito.any())).thenReturn(MOCK_BOARD_3);
+        // Arrange
+        when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(board));
+        when(boardRepository.save(Mockito.any())).thenReturn(board);
 
-        Board updatedBoard = boardService.update(MOCK_BOARD_3, 3L);
+        // Act
+        Board updatedBoard = boardService.update(board, 3L);
 
+        // Assert
         assertNotNull(updatedBoard);
-        assertEquals(MOCK_BOARD_3, updatedBoard);
+        assertEquals(board, updatedBoard);
         verify(boardRepository, times(1)).findById(3L);
-        verify(boardRepository, times(1)).save(MOCK_BOARD_3);
+        verify(boardRepository, times(1)).save(board);
     }
 
     @Test
     void testUpdate_NonExistingBoard_ThrowsException() throws BoardNotFoundExceptionTrello {
+        // Arrange
         when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(BoardNotFoundExceptionTrello.class, () -> boardService.update(MOCK_BOARD_3, 3L));
+        // Act and Assert
+        assertThrows(BoardNotFoundExceptionTrello.class, () -> boardService.update(board, 3L));
 
         verify(boardRepository, times(1)).findById(3L);
         verify(boardRepository, never()).save(Mockito.any());
@@ -111,22 +121,28 @@ class BoardServiceImplTest {
 
     @Test
     void testDelete_ExistingBoard_ShouldReturnTrue() {
-        when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(MOCK_BOARD_3));
+        // Arrange
+        when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(board));
 
+        // Act
         boolean result = boardService.delete(3L);
 
+        // Assert
         assertTrue(result);
         verify(boardRepository, times(1)).findById(3L);
-        verify(boardRepository, times(1)).delete(MOCK_BOARD_3);
+        verify(boardRepository, times(1)).delete(board);
         verify(boardRepository, times(1)).flush();
     }
 
     @Test
     void testDelete_NonExistingBoard_ShouldReturnFalse() {
+        // Arrange
         when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
+        // Act
         boolean result = boardService.delete(3L);
 
+        // Assert
         assertFalse(result);
         verify(boardRepository, times(1)).findById(3L);
         verify(boardRepository, never()).delete(Mockito.any());

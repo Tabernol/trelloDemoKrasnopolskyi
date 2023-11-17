@@ -6,8 +6,6 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
-import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
-import com.krasnopolskyi.trellodemokrasnopolskyi.validator.BoardValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,8 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -33,21 +30,23 @@ public class ColumnOrderingServiceImplTest {
     private ColumnRepository columnRepository;
     @InjectMocks
     private ColumnOrderingServiceImpl columnOrderingService;
+    private Column column;
+    private ColumnOrder columnOrder1;
+    private ColumnOrder columnOrder2;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        column = Column.builder().id(1L).name("Column 1").board(Board.builder().id(1L).build()).build();
+        columnOrder1 = ColumnOrder.builder().columnId(1L).boardId(1L).orderIndex(1).build();
+        columnOrder2 = ColumnOrder.builder().columnId(2L).boardId(1L).orderIndex(2).build();
         columnOrderingService = new ColumnOrderingServiceImpl(columnOrderingRepository, columnRepository);
     }
 
     @Test
     void testInsert_ShouldReturnColumnOrder() {
         // Arrange
-        Column column = new Column();
-        column.setId(1L);
-        column.setBoard(new Board());
-
-        when(columnRepository.findAllByBoard(isNull())).thenReturn(Collections.emptyList());
+        when(columnRepository.findAllByBoard(anyLong())).thenReturn(Collections.emptyList());
         when(columnOrderingRepository.saveAndFlush(any(ColumnOrder.class))).thenReturn(new ColumnOrder());
 
         // Act
@@ -55,7 +54,7 @@ public class ColumnOrderingServiceImplTest {
 
         // Assert
         assertNotNull(result);
-        verify(columnRepository, times(1)).findAllByBoard(isNull());
+        verify(columnRepository, times(1)).findAllByBoard(anyLong());
         verify(columnOrderingRepository, times(1)).saveAndFlush(any(ColumnOrder.class));
     }
 
@@ -64,8 +63,7 @@ public class ColumnOrderingServiceImplTest {
         // Arrange
         Long boardId = 1L;
         when(columnOrderingRepository.findAllByBoardIdOrderByOrderIndex(boardId))
-                .thenReturn(Arrays.asList(new ColumnOrder(1L, 1L, 1),
-                        new ColumnOrder(2L, 1L, 2)));
+                .thenReturn(Arrays.asList(columnOrder1, columnOrder2));
 
         // Act
         List<Long> result = columnOrderingService.findAllColumnsIdByBoardIdInUserOrder(boardId);
@@ -78,19 +76,14 @@ public class ColumnOrderingServiceImplTest {
 
     @Test
     void testFindAllColumnsByBoardInUserOrder_ShouldReturnListOfColumn() {
-        Column column1 = Column.builder().id(1L).name("Column 1").build();
         Column column2 = Column.builder().id(2L).name("Column 2").build();
-        ColumnOrder columnOrder1 = ColumnOrder.builder().columnId(1L).boardId(1L).orderIndex(1).build();
-        ColumnOrder columnOrder2 = ColumnOrder.builder().columnId(2L).boardId(1L).orderIndex(2).build();
         // Arrange
         Long boardId = 1L;
-        List<Long> columnIds = Arrays.asList(1L, 2L);
         when(columnOrderingRepository.findAllByBoardIdOrderByOrderIndex(boardId))
                 .thenReturn(Arrays.asList(columnOrder1, columnOrder2));
 
         when(columnRepository.findAllByBoard(boardId))
-                .thenReturn(Arrays.asList(column1, column2));
-
+                .thenReturn(Arrays.asList(column, column2));
 
 
         // Act
@@ -109,9 +102,7 @@ public class ColumnOrderingServiceImplTest {
         // Arrange
         ColumnOrder columnOrder = new ColumnOrder(1L, 1L, 2);
         List<ColumnOrder> columnOrderList = Arrays.asList(
-                new ColumnOrder(1L, 1L, 1),
-                new ColumnOrder(2L, 1L, 2),
-                new ColumnOrder(3L, 1L, 3)
+                columnOrder1, columnOrder2, new ColumnOrder(3L, 1L, 3)
         );
 
         Board board = Board.builder().id(1L).build();
@@ -128,5 +119,13 @@ public class ColumnOrderingServiceImplTest {
         verify(columnRepository, times(1)).findById(anyLong());
         verify(columnOrderingRepository, times(1)).findAllByBoardIdOrderByOrderIndex(anyLong());
         verify(columnOrderingRepository, times(1)).saveAllAndFlush(anyList());
+    }
+
+    @Test
+    void testReorder_ShouldThrowException() throws ColumnNotFoundExceptionTrello {
+        // Arrange
+        when(columnRepository.findById(1L)).thenReturn(Optional.empty());
+        // Act & Assert
+        assertThrows(ColumnNotFoundExceptionTrello.class, () -> columnOrderingService.reorder(columnOrder1));
     }
 }

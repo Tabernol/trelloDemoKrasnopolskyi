@@ -1,4 +1,4 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto;
+package com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_order_dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

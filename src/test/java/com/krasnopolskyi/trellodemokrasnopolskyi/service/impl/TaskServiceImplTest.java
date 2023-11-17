@@ -39,10 +39,12 @@ public class TaskServiceImplTest {
 
     @InjectMocks
     private TaskServiceImpl taskService;
+    private Task testTask;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        testTask = Task.builder().id(1L).name("Test Task").column(Column.builder().id(1L).build()).build();
         taskOrderingService =
                 new TaskOrderingServiceImpl(taskOrderingRepository, taskRepository, columnRepository);
         taskService =
@@ -53,35 +55,31 @@ public class TaskServiceImplTest {
     @Test
     void testFindById_ExistingTask_ShouldReturnTask() throws TaskNotFoundExceptionTrello {
         // Arrange
-        Long taskId = 1L;
-        Task mockTask = new Task();
-        mockTask.setId(taskId);
-        when(taskRepository.findById(taskId)).thenReturn(Optional.of(mockTask));
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
 
         // Act
-        Task resultTask = taskService.findById(taskId);
+        Task resultTask = taskService.findById(1L);
 
         // Assert
         assertNotNull(resultTask);
-        assertEquals(taskId, resultTask.getId());
-        verify(taskRepository, times(1)).findById(taskId);
+        assertEquals(1L, resultTask.getId());
+        verify(taskRepository, times(1)).findById(1L);
     }
 
     @Test
     void testFindById_NonExistingTask_ShouldThrowException() {
-        // Arrange
-        Long taskId = 1L;
-        when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
+        // Arrange;
+        when(taskRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(TaskNotFoundExceptionTrello.class, () -> taskService.findById(taskId));
-        verify(taskRepository, times(1)).findById(taskId);
+        assertThrows(TaskNotFoundExceptionTrello.class, () -> taskService.findById(1L));
+        verify(taskRepository, times(1)).findById(1L);
     }
 
     @Test
     void testFindAll_ShouldReturnListOfTasks() {
         // Arrange
-        List<Task> mockTasks = Arrays.asList(new Task(), new Task());
+        List<Task> mockTasks = Arrays.asList(testTask);
         when(taskRepository.findAll()).thenReturn(mockTasks);
 
         // Act
@@ -95,36 +93,29 @@ public class TaskServiceImplTest {
 
     @Test
     void testCreate_ShouldReturnCreatedTask() {
-        Column mockColumn = new Column();
-        mockColumn.setId(1L);
-        mockColumn.setName("Test Column");
-
+        TaskOrder taskOrder = TaskOrder.builder().taskId(1L).columnId(1L).orderIndex(1).build();
         // Arrange
-        Task mockTask = new Task();
-        mockTask.setColumn(mockColumn);
-        when(taskRepository.saveAndFlush(any(Task.class))).thenReturn(mockTask);
-        when(taskOrderingService.insert(mockTask)).thenReturn(new TaskOrder());
+        when(taskRepository.saveAndFlush(any(Task.class))).thenReturn(testTask);
+        when(taskRepository.findAllByColumn(1L)).thenReturn(Arrays.asList(testTask));
+        when(taskOrderingRepository.save(any(TaskOrder.class))).thenReturn(taskOrder);
 
         // Act
-        Task createdTask = taskService.create(mockTask);
+        Task createdTask = taskService.create(testTask);
 
         // Assert
         assertNotNull(createdTask);
-      //  verify(taskOrderingService, times(1)).insert(mockTask);
         verify(taskRepository, times(1)).saveAndFlush(any(Task.class));
+        verify(taskRepository, times(1)).findAllByColumn(1L);
+        verify(taskOrderingRepository, times(1)).save(taskOrder);
     }
 
     @Test
     void testUpdate_ExistingTask_ShouldReturnUpdatedTask() throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
         // Arrange
         Long taskId = 1L;
-        Task existingTask = new Task();
-        existingTask.setId(taskId);
-        Task updatedTask = new Task();
-        updatedTask.setName("Updated Task");
+        Task updatedTask = Task.builder().name("Updated name").description("updated description").build();
 
-        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
-//        when(columnRepository.findById(anyLong())).thenReturn(Optional.of(new Column()));
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
         when(taskRepository.save(any(Task.class))).thenReturn(updatedTask);
 
         // Act
@@ -135,6 +126,51 @@ public class TaskServiceImplTest {
         assertEquals(updatedTask.getName(), resultTask.getName());
         verify(taskRepository, times(1)).findById(taskId);
         verify(taskRepository, times(1)).save(any(Task.class));
+    }
+
+    @Test
+    void testUpdate_ExistingTask_ShouldReturnUpdatedTaskAndChangeColumn() throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
+        // Arrange
+        Long taskId = 1L;
+        Column column = Column.builder().id(2L).build();
+        Task updatedTask = Task.builder()
+                .name("Updated name")
+                .description("updated description")
+                .column(column).build();
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(taskRepository.save(any(Task.class))).thenReturn(updatedTask);
+        when(columnRepository.findById(2L)).thenReturn(Optional.of(column));
+
+        // Act
+        Task resultTask = taskService.update(updatedTask, taskId);
+
+        // Assert
+        assertNotNull(resultTask);
+        assertEquals(updatedTask.getName(), resultTask.getName());
+        verify(taskRepository, times(1)).findById(taskId);
+        verify(columnRepository, times(1)).findById(2L);
+        verify(taskRepository, times(1)).save(any(Task.class));
+    }
+
+    @Test
+    void testUpdate_ExistingTask_ShouldThrowException_WhenChangeColumn()
+            throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
+        // Arrange
+        Column column = Column.builder().id(2L).build();
+        Task updatedTask = Task.builder()
+                .id(1L)
+                .name("Updated name")
+                .description("updated description")
+                .column(column).build();
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+        when(columnRepository.findById(2L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ColumnNotFoundExceptionTrello.class, () -> taskService.update(updatedTask, 1L));
+        verify(taskRepository, times(1)).findById(1L);
+        verify(columnRepository, times(1)).findById(2L);
     }
 
     @Test

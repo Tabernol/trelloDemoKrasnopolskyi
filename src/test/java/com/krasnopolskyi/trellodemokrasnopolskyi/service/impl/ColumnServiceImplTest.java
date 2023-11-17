@@ -2,6 +2,8 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.BoardNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
@@ -14,17 +16,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 public class ColumnServiceImplTest {
@@ -40,10 +43,12 @@ public class ColumnServiceImplTest {
     private ColumnOrderingService columnOrderingService;
     @InjectMocks
     private ColumnServiceImpl columnService;
+    private Column testColumn;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        testColumn = Column.builder().id(1L).name("Test Column").board(Board.builder().id(1L).build()).build();
         boardValidator = new BoardValidator(boardRepository);
         columnOrderingService = new ColumnOrderingServiceImpl(columnOrderingRepository, columnRepository);
         columnService = new ColumnServiceImpl(boardValidator, columnRepository, columnOrderingService);
@@ -51,14 +56,13 @@ public class ColumnServiceImplTest {
 
     @Test
     void testFindById_ExistingColumn_ShouldReturnColumn() throws ColumnNotFoundExceptionTrello {
-        Column mockColumn = new Column();
-        mockColumn.setId(1L);
-        mockColumn.setName("Test Column");
+        // Arrange
+        when(columnRepository.findById(1L)).thenReturn(Optional.of(testColumn));
 
-        when(columnRepository.findById(1L)).thenReturn(Optional.of(mockColumn));
-
+        // Act
         Column resultColumn = columnService.findById(1L);
 
+        // Assert
         assertNotNull(resultColumn);
         assertEquals(1L, resultColumn.getId());
         assertEquals("Test Column", resultColumn.getName());
@@ -67,56 +71,70 @@ public class ColumnServiceImplTest {
 
     @Test
     void testFindById_NonExistingColumn_ShouldThrowException() {
+        // Arrange
         when(columnRepository.findById(1L)).thenReturn(Optional.empty());
 
+        // Act and Assert
         assertThrows(ColumnNotFoundExceptionTrello.class, () -> columnService.findById(1L));
         verify(columnRepository, times(1)).findById(1L);
     }
 
     @Test
     void testFindAll_ShouldReturnListOfColumns() {
-        Column mockColumn = new Column();
-        mockColumn.setId(1L);
-        mockColumn.setName("Test Column");
+        // Arrange
+        when(columnRepository.findAll()).thenReturn(Collections.singletonList(testColumn));
 
-        when(columnRepository.findAll()).thenReturn(Collections.singletonList(mockColumn));
-
+        // Act
         List<Column> resultColumns = columnService.findAll();
 
+        // Assert
         assertFalse(resultColumns.isEmpty());
         assertEquals(1, resultColumns.size());
-        assertEquals(mockColumn, resultColumns.get(0));
+        assertEquals(testColumn, resultColumns.get(0));
         verify(columnRepository, times(1)).findAll();
     }
 
-//    @Test
-//    void testCreate_ValidColumn_ShouldReturnCreatedColumn() throws BoardNotFoundExceptionTrello {
-//
-//    }
-//
-//
-//    @Test
-//    void testCreate_InvalidBoard_ShouldThrowException() throws BoardNotFoundExceptionTrello {
-//
-//    }
+    @Test
+    void testCreate_ValidColumn_ShouldReturnCreatedColumn() throws BoardNotFoundExceptionTrello {
+        ColumnOrder columnOrder = ColumnOrder.builder().columnId(1L).boardId(1L).orderIndex(1).build();
+        // Arrange
+        when(boardRepository.existsById(1L)).thenReturn(true);
+        when(columnRepository.saveAndFlush(any(Column.class))).thenReturn(testColumn);
+        when(columnRepository.findAllByBoard(1L)).thenReturn(Arrays.asList(testColumn));
+        when(columnOrderingRepository.saveAndFlush(any(ColumnOrder.class))).thenReturn(columnOrder);
+
+        // Act
+        Column createdColumn = columnService.create(testColumn);
+
+        // Assert
+        assertNotNull(createdColumn);
+        verify(boardRepository, times(1)).existsById(1L);
+        verify(columnRepository, times(1)).saveAndFlush(any(Column.class));
+        verify(columnRepository, times(1)).findAllByBoard(1L);
+        verify(columnOrderingRepository, times(1)).saveAndFlush(columnOrder);
+    }
+
+    @Test
+    void testCreate_InvalidBoard_ShouldThrowException() throws BoardNotFoundExceptionTrello {
+        // Arrange
+        when(boardRepository.existsById(1L)).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(BoardNotFoundExceptionTrello.class, () -> columnService.create(testColumn));
+    }
 
 
     @Test
     void testUpdate_ExistingColumn_ShouldReturnUpdatedColumn() throws ColumnNotFoundExceptionTrello {
-        Column existingColumn = new Column();
-        existingColumn.setId(1L);
-        existingColumn.setName("Existing Column");
-
-        Column updatedColumn = new Column();
-        updatedColumn.setId(1L);
-        updatedColumn.setName("Updated Column");
-
-        when(columnRepository.findById(1L)).thenReturn(Optional.of(existingColumn));
+        // Arrange
+        Column updatedColumn = Column.builder().id(1L).name("Updated Column").build();
+        when(columnRepository.findById(1L)).thenReturn(Optional.of(testColumn));
         when(columnRepository.save(any(Column.class))).thenReturn(updatedColumn);
 
-
+        // Act
         Column resultColumn = columnService.update(updatedColumn, 1L);
 
+        // Assert
         assertNotNull(resultColumn);
         assertEquals(1L, resultColumn.getId());
         assertEquals("Updated Column", resultColumn.getName());
@@ -126,39 +144,40 @@ public class ColumnServiceImplTest {
 
     @Test
     void testUpdate_NonExistingColumn_ShouldThrowException() {
-        Column updatedColumn = new Column();
-        updatedColumn.setId(1L);
-        updatedColumn.setName("Updated Column");
+        // Arrange
+        Column updatedColumn = Column.builder().id(2L).name("Updated Column").build();
+        when(columnRepository.findById(2L)).thenReturn(Optional.empty());
 
-        when(columnRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(ColumnNotFoundExceptionTrello.class, () -> columnService.update(updatedColumn, 1L));
-        verify(columnRepository, times(1)).findById(1L);
+        // Act and Assert
+        assertThrows(ColumnNotFoundExceptionTrello.class, () -> columnService.update(updatedColumn, 2L));
+        verify(columnRepository, times(1)).findById(2L);
         verify(columnRepository, never()).save(any(Column.class));
     }
 
     @Test
     void testDelete_ExistingColumn_ShouldReturnTrue() {
-        Column existingColumn = new Column();
-        existingColumn.setId(1L);
-        existingColumn.setName("Existing Column");
+        // Arrange
+        when(columnRepository.findById(1L)).thenReturn(Optional.of(testColumn));
 
-        when(columnRepository.findById(1L)).thenReturn(Optional.of(existingColumn));
-
+        // Act
         boolean result = columnService.delete(1L);
 
+        // Assert
         assertTrue(result);
         verify(columnRepository, times(1)).findById(1L);
-        verify(columnRepository, times(1)).delete(existingColumn);
+        verify(columnRepository, times(1)).delete(testColumn);
         verify(columnRepository, times(1)).flush();
     }
 
     @Test
     void testDelete_NonExistingColumn_ShouldReturnFalse() {
+        // Arrange
         when(columnRepository.findById(1L)).thenReturn(Optional.empty());
 
+        // Act
         boolean result = columnService.delete(1L);
 
+        // Assert
         assertFalse(result);
         verify(columnRepository, times(1)).findById(1L);
         verify(columnRepository, never()).delete(any(Column.class));

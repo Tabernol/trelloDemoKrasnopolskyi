@@ -63,14 +63,6 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
 
 
     @Override
-    public List<Long> findAllIdTasksByColumnInUserOrder(Long columnId) {
-        return taskOrderingRepository.findAllByColumnIdOrderByOrderIndex(columnId)
-                .stream()
-                .map(taskOrder -> taskOrder.getTaskId())
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @Transactional
     public int moveTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello {
         Task task = getTask(taskOrder);
@@ -93,6 +85,13 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
             int rowUpdated = moveToAnotherColumn(taskOrder);
             return sourceColumn.size() + rowUpdated;
         }
+    }
+
+    private List<Long> findAllIdTasksByColumnInUserOrder(Long columnId) {
+        return taskOrderingRepository.findAllByColumnIdOrderByOrderIndex(columnId)
+                .stream()
+                .map(taskOrder -> taskOrder.getTaskId())
+                .collect(Collectors.toList());
     }
 
     private Task getTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello {
