@@ -7,6 +7,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.exception.BoardNotFoundExceptio
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.impl.BoardServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,6 +20,13 @@ public class BoardIntegrationTest extends IntegrationTestBase {
     private BoardRepository boardRepository;
     @Autowired
     private BoardServiceImpl boardService;
+
+    private Board board;
+
+    @BeforeEach
+    private void setUp() {
+
+    }
 
     @Test
     void findById_ExistingId_ReturnsBoard() throws BoardNotFoundExceptionTrello {

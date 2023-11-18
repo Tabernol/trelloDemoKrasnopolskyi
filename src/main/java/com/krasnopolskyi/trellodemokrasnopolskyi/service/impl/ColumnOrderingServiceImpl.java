@@ -99,6 +99,4 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
         columnOrderList = columnOrderingRepository.saveAllAndFlush(columnOrderList);
         return columnOrderList.size();
     }
-
-
 }

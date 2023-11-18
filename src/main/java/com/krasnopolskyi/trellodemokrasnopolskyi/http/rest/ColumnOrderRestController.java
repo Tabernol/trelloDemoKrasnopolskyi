@@ -4,6 +4,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadRespon
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_order_dto.ColumnOrderEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
@@ -25,6 +26,10 @@ public class ColumnOrderRestController {
     private final ColumnOrderingService columnOrderingService;
     private final ColumnMapper columnMapper;
 
+    public static final String ORDER_SUCCESSFUL = "Column ordered successfully";
+    public static final String ORDER_FAILED = "Column ordered failed";
+    public static final String MISMATCHED_IDS = "Mismatched columns IDs";
+
     public ColumnOrderRestController(ColumnOrderingService columnOrderingService,
                                      ColumnMapper columnMapper) {
         this.columnOrderingService = columnOrderingService;
@@ -42,26 +47,21 @@ public class ColumnOrderRestController {
     public ResponseEntity<String> reOrder(
             @PathVariable("columnId") @Min(1) Long columnId,
             @Validated()
-            @RequestBody ColumnOrderEditRequest columnOrderEditRequest) {
+            @RequestBody ColumnOrderEditRequest columnOrderEditRequest) throws ColumnNotFoundExceptionTrello {
 
         if (!columnId.equals(columnOrderEditRequest.getColumnId())) {
-            return ResponseEntity.badRequest().body("Mismatched columns IDs");
+            return ResponseEntity.badRequest().body(MISMATCHED_IDS);
         }
-        int updatedRow = 0;
 
-        try {
-            updatedRow = columnOrderingService.reorder(ColumnOrder
-                    .builder()
-                    .columnId(columnOrderEditRequest.getColumnId())
-                    .orderIndex(columnOrderEditRequest.getOrderIndex())
-                    .build());
-        } catch (TrelloException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+        int updatedRow = columnOrderingService.reorder(ColumnOrder
+                .builder()
+                .columnId(columnOrderEditRequest.getColumnId())
+                .orderIndex(columnOrderEditRequest.getOrderIndex())
+                .build());
 
         return updatedRow > 0 ?
-                ResponseEntity.ok("Column ordered successfully") :
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Column ordered failed");
+                ResponseEntity.ok(ORDER_SUCCESSFUL) :
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ORDER_FAILED);
 
     }
 }

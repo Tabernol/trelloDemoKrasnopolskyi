@@ -31,7 +31,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             errorResponse.addErrorContent(fieldError.getField(), fieldError.getDefaultMessage());
         }
-        return ResponseEntity.unprocessableEntity().body(errorResponse);
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
 

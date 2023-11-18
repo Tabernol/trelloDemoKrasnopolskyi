@@ -1,4 +1,4 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.http;
+package com.krasnopolskyi.trellodemokrasnopolskyi.http.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateEditRequest;

@@ -42,6 +42,4 @@ public class ColumnMapper implements BaseMapper<Column, ColumnReadResponse, Colu
         }
         return result;
     }
-
-
 }
