@@ -2,7 +2,7 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.BoardNotFoundExceptionTrello;
-import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloEntityNotFoundException;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class BoardServiceImplTest {
     }
 
     @Test
-    void testFindById_ExistingBoard_ShouldReturnBoard() throws TrelloEntityNotFoundException {
+    void testFindById_ExistingBoard_ShouldReturnBoard() throws TrelloException {
         // Arrange
         when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(board));
 

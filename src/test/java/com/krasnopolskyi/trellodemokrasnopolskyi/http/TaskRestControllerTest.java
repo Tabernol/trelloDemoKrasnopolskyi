@@ -5,6 +5,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateEditRequ
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
+import com.krasnopolskyi.trellodemokrasnopolskyi.http.rest.TaskRestController;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;

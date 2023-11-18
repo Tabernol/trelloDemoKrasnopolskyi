@@ -1,10 +1,11 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.http;
+package com.krasnopolskyi.trellodemokrasnopolskyi.http.rest;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnCreateRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
-import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloEntityNotFoundException;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import jakarta.validation.constraints.Min;
@@ -36,12 +37,9 @@ public class ColumnRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ColumnReadResponse> getColumnById(@PathVariable("id") @Min(1) Long id) {
-        try {
-            return ResponseEntity.ok(columnMapper.mapToDto(columnService.findById(id)));
-        } catch (TrelloEntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+    public ResponseEntity<ColumnReadResponse> getColumnById(
+            @PathVariable("id") @Min(1) Long id) throws TrelloException {
+        return ResponseEntity.ok(columnMapper.mapToDto(columnService.findById(id)));
     }
 
     @GetMapping
@@ -53,16 +51,9 @@ public class ColumnRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Column> createColumn(
             @Validated()
-            @RequestBody ColumnCreateRequest columnCreateRequest) {
-        try {
-            //check existing board
-//            boardValidator.validate(columnCreateRequest.getBoardId());
-            Column column = columnMapper.mapToEntity(columnCreateRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(columnService.create(column));
-
-        } catch (TrelloEntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+            @RequestBody ColumnCreateRequest columnCreateRequest) throws TrelloException {
+        Column column = columnMapper.mapToEntity(columnCreateRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(columnService.create(column));
     }
 
 
@@ -70,13 +61,9 @@ public class ColumnRestController {
     public ResponseEntity<ColumnReadResponse> updateColumn(
             @PathVariable("id") @Min(1) Long id,
             @Validated()
-            @RequestBody ColumnEditRequest columnEditRequest) {
-        try {
-            Column column = columnMapper.mapToEntity(columnEditRequest);
-            return ResponseEntity.ok(columnMapper.mapToDto(columnService.update(column, id)));
-        } catch (TrelloEntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+            @RequestBody ColumnEditRequest columnEditRequest) throws ColumnNotFoundExceptionTrello {
+        Column column = columnMapper.mapToEntity(columnEditRequest);
+        return ResponseEntity.ok(columnMapper.mapToDto(columnService.update(column, id)));
     }
 
     @DeleteMapping("/{id}")

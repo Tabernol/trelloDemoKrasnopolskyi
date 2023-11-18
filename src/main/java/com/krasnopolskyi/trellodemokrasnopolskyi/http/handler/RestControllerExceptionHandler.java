@@ -1,36 +1,25 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.http.handler;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.HashMap;
-import java.util.Map;
 
-@RestControllerAdvice
-public class RestControllerExceptionHandler extends ResponseEntityExceptionHandler {
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
+@RestControllerAdvice(basePackages = "com/krasnopolskyi/trellodemokrasnopolskyi/http/rest")
+@Slf4j(topic = "TRELLO_EXCEPTION")
+public class RestControllerExceptionHandler extends GlobalExceptionHandler {
 
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult()
-                .getAllErrors()
-                .forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return ResponseEntity.badRequest().body(errors);
+    @ExceptionHandler(TrelloException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<Object> handleNoSuchElementFoundException(
+            TrelloException itemNotFoundException, WebRequest request) {
+        log.error("Failed to find the requested entity check passed id", itemNotFoundException);
+        return buildErrorResponse(itemNotFoundException, HttpStatus.NOT_FOUND, request);
     }
 }
 

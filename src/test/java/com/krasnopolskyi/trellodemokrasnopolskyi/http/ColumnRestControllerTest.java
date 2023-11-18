@@ -6,6 +6,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnEditReques
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
+import com.krasnopolskyi.trellodemokrasnopolskyi.http.rest.ColumnRestController;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import org.junit.jupiter.api.Test;

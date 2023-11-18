@@ -1,10 +1,10 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.http;
+package com.krasnopolskyi.trellodemokrasnopolskyi.http.rest;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_order_dto.ColumnOrderEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
-import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloEntityNotFoundException;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
 import jakarta.validation.constraints.Min;
@@ -55,7 +55,7 @@ public class ColumnOrderRestController {
                     .columnId(columnOrderEditRequest.getColumnId())
                     .orderIndex(columnOrderEditRequest.getOrderIndex())
                     .build());
-        } catch (TrelloEntityNotFoundException e) {
+        } catch (TrelloException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
 

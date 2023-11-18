@@ -1,10 +1,10 @@
-package com.krasnopolskyi.trellodemokrasnopolskyi.http;
+package com.krasnopolskyi.trellodemokrasnopolskyi.http.rest;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_order_dto.TaskOrderEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.TaskOrder;
-import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloEntityNotFoundException;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskOrderingService;
 import jakarta.validation.constraints.Min;
@@ -61,7 +61,7 @@ public class TaskOrderRestController {
         int updatedRow = 0;
         try {
             updatedRow = taskOrderingService.moveTask(taskOrder);
-        } catch (TrelloEntityNotFoundException e) {
+        } catch (TrelloException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
 

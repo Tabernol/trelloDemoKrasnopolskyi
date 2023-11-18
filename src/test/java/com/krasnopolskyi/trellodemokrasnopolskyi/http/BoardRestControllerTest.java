@@ -6,6 +6,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardCreateReques
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
+import com.krasnopolskyi.trellodemokrasnopolskyi.http.rest.BoardRestController;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.BoardMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.BoardService;
 import org.junit.jupiter.api.BeforeEach;
