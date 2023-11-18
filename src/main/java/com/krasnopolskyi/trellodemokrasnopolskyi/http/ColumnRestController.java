@@ -36,7 +36,7 @@ public class ColumnRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ColumnReadResponse> get(@PathVariable("id") @Min(1) Long id) {
+    public ResponseEntity<ColumnReadResponse> getColumnById(@PathVariable("id") @Min(1) Long id) {
         try {
             return ResponseEntity.ok(columnMapper.mapToDto(columnService.findById(id)));
         } catch (TrelloEntityNotFoundException e) {
@@ -45,20 +45,20 @@ public class ColumnRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ColumnReadResponse>> getAll() {
+    public ResponseEntity<List<ColumnReadResponse>> getAllColumns() {
         return ResponseEntity.ok(columnMapper.mapAll(columnService.findAll()));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Column> create(
+    public ResponseEntity<Column> createColumn(
             @Validated()
             @RequestBody ColumnCreateRequest columnCreateRequest) {
         try {
             //check existing board
 //            boardValidator.validate(columnCreateRequest.getBoardId());
             Column column = columnMapper.mapToEntity(columnCreateRequest);
-            return ResponseEntity.ok(columnService.create(column));
+            return ResponseEntity.status(HttpStatus.CREATED).body(columnService.create(column));
 
         } catch (TrelloEntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -67,7 +67,7 @@ public class ColumnRestController {
 
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ColumnReadResponse> update(
+    public ResponseEntity<ColumnReadResponse> updateColumn(
             @PathVariable("id") @Min(1) Long id,
             @Validated()
             @RequestBody ColumnEditRequest columnEditRequest) {
@@ -80,7 +80,7 @@ public class ColumnRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") @Min(1) Long id) {
+    public ResponseEntity<?> deleteColumn(@PathVariable("id") @Min(1) Long id) {
         return columnService.delete(id) ? noContent().build() : notFound().build();
     }
 }

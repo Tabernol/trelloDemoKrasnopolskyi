@@ -36,7 +36,7 @@ public class BoardRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BoardReadResponse> get(
+    public ResponseEntity<BoardReadResponse> getBoardById(
             @PathVariable("id") @Min(1) Long id) {
         try {
             return ResponseEntity.ok(boardMapper.mapToDto(boardService.findById(id)));
@@ -46,39 +46,39 @@ public class BoardRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BoardReadResponse>> getAll() {
+    public ResponseEntity<List<BoardReadResponse>> getAllBoards() {
         return ResponseEntity.ok(boardMapper.mapAll(boardService.findAll()));
 
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Board> create(
+    public ResponseEntity<Board> createBoard(
             @Validated()
             @RequestBody BoardCreateRequest boardCreateRequest) {
         Board board = boardMapper.mapToEntity(boardCreateRequest);
         try {
-            return ResponseEntity.ok(boardService.create(board));
+            return ResponseEntity.status(HttpStatus.CREATED).body(boardService.create(board));
         } catch (TrelloEntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BoardReadResponse> update(
+    public ResponseEntity<BoardReadResponse> updateBoard(
             @PathVariable("id") @Min(1) Long id,
             @Validated()
             @RequestBody BoardEditRequest boardEditRequest) {
         try {
             Board board = boardMapper.mapToEntity(boardEditRequest);
-            return ResponseEntity.ok(boardMapper.mapToDto(boardService.update(board, id)));
+            return ResponseEntity.status(HttpStatus.OK).body(boardMapper.mapToDto(boardService.update(board, id)));
         } catch (TrelloEntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") @Min(1) Long id) {
+    public ResponseEntity<?> deleteBoard(@PathVariable("id") @Min(1) Long id) {
         return boardService.delete(id) ? noContent().build() : notFound().build();
     }
 }

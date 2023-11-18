@@ -46,7 +46,7 @@ public class TaskRestController {
     public ResponseEntity<TaskReadResponse> get(
             @PathVariable("id") @Min(1) Long id) {
         try {
-            return ResponseEntity.ok(taskMapper.mapToDto(taskService.findById(id)));
+            return ResponseEntity.status(HttpStatus.OK).body(taskMapper.mapToDto(taskService.findById(id)));
         } catch (TrelloEntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -69,7 +69,7 @@ public class TaskRestController {
             columnService.findById(taskCreateEditRequest.getColumnId());
 
             Task task = taskMapper.mapToEntity(taskCreateEditRequest);
-            return ResponseEntity.ok(taskService.create(task));
+            return ResponseEntity.status(HttpStatus.CREATED).body(taskService.create(task));
         } catch (TrelloEntityNotFoundException e) {
             log.warn("Something went wrong Task.create " + e);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -83,7 +83,7 @@ public class TaskRestController {
             @RequestBody TaskCreateEditRequest taskCreateEditRequest) {
         try {
             Task task = taskMapper.mapToEntity(taskCreateEditRequest);
-            return ResponseEntity.ok(taskMapper.mapToDto(taskService.update(task, id)));
+            return ResponseEntity.status(HttpStatus.OK).body(taskMapper.mapToDto(taskService.update(task, id)));
         } catch (TrelloEntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
