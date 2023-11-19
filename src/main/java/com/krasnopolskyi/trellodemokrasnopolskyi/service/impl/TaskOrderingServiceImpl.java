@@ -17,13 +17,24 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Service class that provides business logic for managing the ordering of tasks.
+ */
 @Service
 @Slf4j
 public class TaskOrderingServiceImpl implements TaskOrderingService {
+
     private final TaskOrderingRepository taskOrderingRepository;
     private final TaskRepository taskRepository;
     private final ColumnRepository columnRepository;
 
+    /**
+     * Constructs a new TaskOrderingServiceImpl with the given dependencies.
+     *
+     * @param taskOrderingRepository The repository for task ordering entities.
+     * @param taskRepository         The repository for task entities.
+     * @param columnRepository       The repository for column entities.
+     */
     public TaskOrderingServiceImpl(TaskOrderingRepository taskOrderingRepository,
                                    TaskRepository taskRepository,
                                    ColumnRepository columnRepository) {
@@ -32,7 +43,12 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         this.columnRepository = columnRepository;
     }
 
-
+    /**
+     * Inserts a task order for the specified task.
+     *
+     * @param task The task for which to insert the order.
+     * @return The created task order entity.
+     */
     @Override
     @Transactional
     public TaskOrder insert(Task task) {
@@ -45,6 +61,12 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         return taskOrderingRepository.save(taskOrder);
     }
 
+    /**
+     * Retrieves all tasks for a column in the user-defined order.
+     *
+     * @param columnId The ID of the column.
+     * @return A list of tasks in the user-defined order for the specified column.
+     */
     @Override
     public List<Task> findAllByColumnByUserOrder(Long columnId) {
         List<Task> listOfTask = taskRepository.findAllByColumn(columnId);// none sorted
@@ -61,7 +83,14 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
                 .collect(Collectors.toList());
     }
 
-
+    /**
+     * Moves a task within or between columns based on the provided task order.
+     *
+     * @param taskOrder The task order information.
+     * @return The total number of tasks affected.
+     * @throws TaskNotFoundExceptionTrello   If the associated task is not found.
+     * @throws ColumnNotFoundExceptionTrello If the associated column is not found.
+     */
     @Override
     @Transactional
     public int moveTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello {
@@ -69,6 +98,7 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         Long sourceColumnId = task.getColumn().getId();
         Long targetColumnId = taskOrder.getColumnId();
 
+        //if columnId == null that means method moves task within current column
         if (targetColumnId == null) {
             taskOrder.setColumnId(sourceColumnId);
         }
@@ -87,6 +117,7 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         }
     }
 
+    // Method returns list of IDs task which were sorted in user order
     private List<Long> findAllIdTasksByColumnInUserOrder(Long columnId) {
         return taskOrderingRepository.findAllByColumnIdOrderByOrderIndex(columnId)
                 .stream()
@@ -94,12 +125,13 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
                 .collect(Collectors.toList());
     }
 
+    //this method just return Task by id
     private Task getTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello {
         return taskRepository.findById(taskOrder.getTaskId())
                 .orElseThrow(() -> new TaskNotFoundExceptionTrello("Task with id " + taskOrder.getTaskId() + " not found"));
-
     }
 
+    //this is important method which set new order indexes after insert task to list
     private void updateOrderIndexesAndSave(List<TaskOrder> orderedTasks) {
         for (int i = 0; i < orderedTasks.size(); i++) {
             orderedTasks.get(i).setOrderIndex(i + 1);
@@ -107,6 +139,7 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         taskOrderingRepository.saveAllAndFlush(orderedTasks);
     }
 
+    //this method change column in task-entity and save it.
     private void saveTaskWithAnotherColumn(Task task, Long columnId) throws ColumnNotFoundExceptionTrello {
         Column column = columnRepository.findById(columnId).orElseThrow(
                 () -> new ColumnNotFoundExceptionTrello("Column with id " + columnId + " not found"));
@@ -115,11 +148,13 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         taskRepository.saveAndFlush(task);
     }
 
+    // this method return dto(TaskOrder) by columnId but in natural order
     private List<TaskOrder> getTasksByColumnId(Long columnId) {
         return new LinkedList<>(taskOrderingRepository
                 .findAllByColumnIdOrderByOrderIndex(columnId));
     }
 
+    //this is complex method that move task within in the same column
     private int reorder(List<TaskOrder> currentColumn, TaskOrder taskOrder) {
         //only change order in column
         checkIndex(currentColumn, taskOrder);
@@ -128,6 +163,8 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         return currentColumn.size();
     }
 
+    //it is a complex method that moves tasks to another column in the specified order.
+    // But preserves the order of both columns in new order
     private int moveToAnotherColumn(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello {
         Task task = getTask(taskOrder);
         saveTaskWithAnotherColumn(task, taskOrder.getColumnId());
@@ -140,7 +177,8 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         return targetColumn.size();
     }
 
-
+    //this method checks index which was passed.
+    //if it is more than size of last index that index will set as last
     private void checkIndex(List<TaskOrder> taskOrderList, TaskOrder taskOrder) {
         if (taskOrder.getOrderIndex() > taskOrderList.size()) {
             taskOrder.setOrderIndex(taskOrderList.size() + 1);

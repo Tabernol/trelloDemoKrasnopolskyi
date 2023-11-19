@@ -24,53 +24,93 @@ import java.util.List;
 import static org.springframework.http.ResponseEntity.noContent;
 import static org.springframework.http.ResponseEntity.notFound;
 
+/**
+ * REST controller class that handles board-related endpoints.
+ */
 @RestController
 @RequestMapping("/api/v1/boards")
-@Validated()
-@Slf4j
+@Validated
+@Slf4j(topic = "BOARD_CONTROLLER")
 public class BoardRestController {
+
     private final BoardService boardService;
     private final BoardMapper boardMapper;
 
+    /**
+     * Constructs a new BoardRestController with the given dependencies.
+     *
+     * @param boardService The service for managing boards.
+     * @param boardMapper  The mapper for converting board-related DTOs.
+     */
     public BoardRestController(BoardService boardService,
                                BoardMapper boardMapper) {
         this.boardService = boardService;
         this.boardMapper = boardMapper;
     }
 
+    /**
+     * Retrieves a board by its ID.
+     *
+     * @param id The ID of the board to retrieve.
+     * @return The board response entity.
+     * @throws TrelloException If the board is not found.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<BoardReadResponse> getBoardById(
             @PathVariable("id") @Min(1) Long id) throws TrelloException {
+        log.info("GET board by id " + id);
         return ResponseEntity.ok(boardMapper.mapToDto(boardService.findById(id)));
-
     }
 
+    /**
+     * Retrieves all boards.
+     *
+     * @return The list of board response entities.
+     */
     @GetMapping
     public ResponseEntity<List<BoardReadResponse>> getAllBoards() {
         return ResponseEntity.ok(boardMapper.mapAll(boardService.findAll()));
-
     }
 
+    /**
+     * Creates a new board.
+     *
+     * @param boardCreateRequest The request body containing board details.
+     * @return The created board response entity.
+     * @throws TrelloException If an error occurs during board creation.
+     */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Board> createBoard(
-            @Validated()
-            @RequestBody BoardCreateRequest boardCreateRequest) throws TrelloException {
+            @Validated @RequestBody BoardCreateRequest boardCreateRequest) throws TrelloException {
         Board board = boardMapper.mapToEntity(boardCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(boardService.create(board));
     }
 
+    /**
+     * Updates an existing board.
+     *
+     * @param id                The ID of the board to update.
+     * @param boardEditRequest  The request body containing updated board details.
+     * @return The updated board response entity.
+     * @throws BoardNotFoundExceptionTrello If the board is not found.
+     */
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BoardReadResponse> updateBoard(
             @PathVariable("id") @Min(1) Long id,
-            @Validated()
-            @RequestBody BoardEditRequest boardEditRequest) throws BoardNotFoundExceptionTrello {
-            Board board = boardMapper.mapToEntity(boardEditRequest);
-            return ResponseEntity.status(HttpStatus.OK).body(boardMapper.mapToDto(boardService.update(board, id)));
+            @Validated @RequestBody BoardEditRequest boardEditRequest) throws BoardNotFoundExceptionTrello {
+        Board board = boardMapper.mapToEntity(boardEditRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(boardMapper.mapToDto(boardService.update(board, id)));
     }
 
+    /**
+     * Deletes a board by its ID.
+     *
+     * @param id The ID of the board to delete.
+     * @return The response entity indicating success or failure.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBoard(@PathVariable("id") @Min(1) Long id) {
-        return boardService.delete(id) ? noContent().build() : notFound().build();
+        return boardService.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }

@@ -16,18 +16,33 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Service class that provides business logic for managing the ordering of columns.
+ */
 @Service
 public class ColumnOrderingServiceImpl implements ColumnOrderingService {
 
     private final ColumnOrderingRepository columnOrderingRepository;
     private final ColumnRepository columnRepository;
 
+    /**
+     * Constructs a new ColumnOrderingServiceImpl with the given dependencies.
+     *
+     * @param columnOrderingRepository The repository for column ordering entities.
+     * @param columnRepository         The repository for column entities.
+     */
     public ColumnOrderingServiceImpl(ColumnOrderingRepository columnOrderingRepository,
                                      ColumnRepository columnRepository) {
         this.columnOrderingRepository = columnOrderingRepository;
         this.columnRepository = columnRepository;
     }
 
+    /**
+     * Inserts a column order for the specified column.
+     *
+     * @param column The column for which to insert the order.
+     * @return The created column order entity.
+     */
     @Override
     @Transactional
     public ColumnOrder insert(Column column) {
@@ -40,6 +55,12 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
         return columnOrderingRepository.saveAndFlush(columnOrder);
     }
 
+    /**
+     * Retrieves all column IDs for a board in the user-defined order.
+     *
+     * @param boardId The ID of the board.
+     * @return A list of column IDs in the user-defined order for the specified board.
+     */
     @Override
     public List<Long> findAllColumnsIdByBoardIdInUserOrder(Long boardId) {
         return columnOrderingRepository.findAllByBoardIdOrderByOrderIndex(boardId)
@@ -48,6 +69,12 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves all columns for a board in the user-defined order.
+     *
+     * @param boardId The ID of the board.
+     * @return A list of columns in the user-defined order for the specified board.
+     */
     public List<Column> findAllColumnsByBoardInUserOrder(Long boardId) {
         List<Column> nonSortedColumns = columnRepository.findAllByBoard(boardId);
 
@@ -62,6 +89,13 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Reorders a column based on the provided column order.
+     *
+     * @param columnOrder The column order information.
+     * @return The total number of columns affected.
+     * @throws ColumnNotFoundExceptionTrello If the associated column is not found.
+     */
     @Override
     @Transactional
     public int reorder(ColumnOrder columnOrder) throws ColumnNotFoundExceptionTrello {
@@ -85,13 +119,15 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
         return updateOrderIndexesAndSave(columnOrderList);
     }
 
-
+    //this method checks index which was passed.
+    //if it is more than size of last index that index will set as last
     private void checkIndex(List<ColumnOrder> columnOrderList, ColumnOrder columnOrder) {
         if (columnOrder.getOrderIndex() > columnOrderList.size()) {
             columnOrder.setOrderIndex(columnOrderList.size() + 1);
         }
     }
 
+    //this is important method which set new order indexes after insert column to list
     private int updateOrderIndexesAndSave(List<ColumnOrder> columnOrderList) {
         for (int i = 0; i < columnOrderList.size(); i++) {
             columnOrderList.get(i).setOrderIndex(i + 1);

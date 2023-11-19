@@ -5,6 +5,11 @@ import lombok.*;
 
 import java.util.Objects;
 
+/**
+ * Entity class representing the ordering of tasks within a column in a Trello board.
+ * <p>
+ * This class is annotated with JPA annotations to define its mapping to the database.
+ */
 @Getter
 @Setter
 @Entity
@@ -13,13 +18,22 @@ import java.util.Objects;
 @AllArgsConstructor
 @Table(name = "tasks_ordering", schema = "krasnopolskyi")
 public class TaskOrder {
+    /**
+     * The unique identifier of the task.
+     */
     @Id
     @jakarta.persistence.Column(name = "task_id")
     private Long taskId;
 
+    /**
+     * The unique identifier of the column to which the task belongs.
+     */
     @jakarta.persistence.Column(name = "column_id")
     private Long columnId;
 
+    /**
+     * The index representing the order of the task within the column.
+     */
     @jakarta.persistence.Column(name = "order_index")
     private int orderIndex;
 
@@ -36,4 +50,5 @@ public class TaskOrder {
         return Objects.hash(taskId, columnId);
     }
 }
+
 

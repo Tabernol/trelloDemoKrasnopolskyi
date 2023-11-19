@@ -19,11 +19,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+/**
+ * REST controller class that handles task ordering-related endpoints.
+ */
 @RestController
 @RequestMapping("/api/v1/columns")
 @Validated()
 @Slf4j
 public class TaskOrderRestController {
+
     private final TaskOrderingService taskOrderingService;
     private final TaskMapper taskMapper;
 
@@ -31,6 +35,12 @@ public class TaskOrderRestController {
     public static final String ORDER_FAILED = "Task move failed";
     public static final String MISMATCHED_IDS = "Mismatched task IDs";
 
+    /**
+     * Constructs a new TaskOrderRestController with the given dependencies.
+     *
+     * @param taskOrderingService The service for managing task ordering.
+     * @param taskMapper          The mapper for converting task-related DTOs.
+     */
     public TaskOrderRestController(
             TaskOrderingService taskOrderingService,
             TaskMapper taskMapper) {
@@ -38,6 +48,12 @@ public class TaskOrderRestController {
         this.taskMapper = taskMapper;
     }
 
+    /**
+     * Retrieves the list of ordered tasks for a given column.
+     *
+     * @param columnId The ID of the column for which to retrieve ordered tasks.
+     * @return The response entity containing the list of ordered tasks.
+     */
     @GetMapping("/{columnId}/tasks/order")
     public ResponseEntity<List<TaskReadResponse>> getOrderedTasks(
             @PathVariable @Min(1) Long columnId) {
@@ -45,15 +61,23 @@ public class TaskOrderRestController {
         return ResponseEntity.ok(taskMapper.mapAll(sortedTask));
     }
 
-
+    /**
+     * Moves a task to a new order index within its column
+     * or in another column in the same board.
+     *
+     * @param taskId                The ID of the task to move.
+     * @param taskOrderEditRequest The request body containing the details of the task move.
+     * @return The response entity indicating the success or failure of the task move.
+     * @throws ColumnNotFoundExceptionTrello If the associated column is not found.
+     * @throws TaskNotFoundExceptionTrello   If the task is not found.
+     */
     @PutMapping("/tasks/{taskId}/move")
     public ResponseEntity<String> moveTask(
             @PathVariable("taskId") @Min(1) Long taskId,
-            @Validated()
-            @RequestBody TaskOrderEditRequest taskOrderEditRequest)
+            @Validated @RequestBody TaskOrderEditRequest taskOrderEditRequest)
             throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
 
-        //maybe do it with AOP
+        // maybe do it with AOP
         if (!taskId.equals(taskOrderEditRequest.getTaskId())) {
             return ResponseEntity.badRequest().body(MISMATCHED_IDS);
         }
@@ -66,7 +90,7 @@ public class TaskOrderRestController {
 
         int updatedRow = taskOrderingService.moveTask(taskOrder);
 
-        log.info("updated row = " + updatedRow);
+        log.info("Updated row = {}", updatedRow);
         return updatedRow > 0 ?
                 ResponseEntity.ok(ORDER_SUCCESSFUL) :
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ORDER_FAILED);
