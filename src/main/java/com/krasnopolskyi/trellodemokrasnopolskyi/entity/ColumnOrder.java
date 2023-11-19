@@ -11,6 +11,7 @@ import java.util.Objects;
  * Entity class representing the ordering of columns in a Trello board.
  * <p>
  * This class is annotated with JPA annotations to define its mapping to the database.
+ * @author Maksym Krasnopolskyi
  */
 @Getter
 @Setter

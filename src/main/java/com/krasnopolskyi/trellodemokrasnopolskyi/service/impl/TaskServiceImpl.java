@@ -19,6 +19,7 @@ import java.util.List;
 
 /**
  * Service class that provides business logic for task-related operations.
+ * @author Maksym Krasnopolskyi
  */
 @Service
 @Slf4j

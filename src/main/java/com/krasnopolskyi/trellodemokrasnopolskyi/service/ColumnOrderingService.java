@@ -14,5 +14,5 @@ public interface ColumnOrderingService {
 
     List<Column> findAllColumnsByBoardInUserOrder(Long boardId);
 
-    int reorder(ColumnOrder columnOrder) throws ColumnNotFoundExceptionTrello;
+    int reorder(ColumnOrder columnOrder, Long columnId) throws ColumnNotFoundExceptionTrello;
 }

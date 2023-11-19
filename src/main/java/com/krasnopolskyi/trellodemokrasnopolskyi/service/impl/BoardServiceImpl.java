@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Service class that provides business logic for board-related operations.
+ * @author Maksym Krasnopolskyi
  */
 @Service
 public class BoardServiceImpl implements BoardService {

@@ -29,6 +29,7 @@ import static org.springframework.http.ResponseEntity.notFound;
 
 /**
  * REST controller class that handles task-related endpoints.
+ * @author Maksym Krasnopolskyi
  */
 @RestController
 @RequestMapping("/api/v1/tasks")

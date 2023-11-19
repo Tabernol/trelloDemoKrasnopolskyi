@@ -3,10 +3,10 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.BoardNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
+import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
-import com.krasnopolskyi.trellodemokrasnopolskyi.validator.BoardValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,26 +15,27 @@ import java.util.List;
 
 /**
  * Service class that provides business logic for column-related operations.
+ * @author Maksym Krasnopolskyi
  */
 @Service
 public class ColumnServiceImpl implements ColumnService {
 
-    private final BoardValidator boardValidator;
+    private final BoardRepository boardRepository;
     private final ColumnRepository columnRepository;
     private final ColumnOrderingService columnOrderingService;
 
     /**
      * Constructs a new ColumnServiceImpl with the given dependencies.
      *
-     * @param boardValidator        The validator for board entities.
+     * @param boardRepository       The repository for board entities
      * @param columnRepository      The repository for column entities.
      * @param columnOrderingService The service for managing column ordering.
      */
     public ColumnServiceImpl(
-            BoardValidator boardValidator,
-            ColumnRepository columnRepository,
+
+            BoardRepository boardRepository, ColumnRepository columnRepository,
             ColumnOrderingService columnOrderingService) {
-        this.boardValidator = boardValidator;
+        this.boardRepository = boardRepository;
         this.columnRepository = columnRepository;
         this.columnOrderingService = columnOrderingService;
     }
@@ -73,8 +74,11 @@ public class ColumnServiceImpl implements ColumnService {
     @Override
     @Transactional
     public Column create(Column column) throws BoardNotFoundExceptionTrello {
+        Long boardId = column.getBoard().getId();
         // Checking existing board
-        boardValidator.validate(column.getBoard().getId());
+        boardRepository.findById(boardId).orElseThrow(() ->
+                new BoardNotFoundExceptionTrello("Board with id " + boardId + " not found"));
+
         column = columnRepository.saveAndFlush(column);
         // Insert into columns_ordering table
         columnOrderingService.insert(column);

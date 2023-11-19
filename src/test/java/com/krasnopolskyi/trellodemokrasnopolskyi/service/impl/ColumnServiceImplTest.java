@@ -10,7 +10,6 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
-import com.krasnopolskyi.trellodemokrasnopolskyi.validator.BoardValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,9 +29,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class ColumnServiceImplTest {
-    @Mock
-    private BoardValidator boardValidator;
+class ColumnServiceImplTest {
     @Mock
     private BoardRepository boardRepository;
     @Mock
@@ -49,9 +46,8 @@ public class ColumnServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         testColumn = Column.builder().id(1L).name("Test Column").board(Board.builder().id(1L).build()).build();
-        boardValidator = new BoardValidator(boardRepository);
         columnOrderingService = new ColumnOrderingServiceImpl(columnOrderingRepository, columnRepository);
-        columnService = new ColumnServiceImpl(boardValidator, columnRepository, columnOrderingService);
+        columnService = new ColumnServiceImpl(boardRepository, columnRepository, columnOrderingService);
     }
 
     @Test
@@ -98,7 +94,7 @@ public class ColumnServiceImplTest {
     void testCreate_ValidColumn_ShouldReturnCreatedColumn() throws BoardNotFoundExceptionTrello {
         ColumnOrder columnOrder = ColumnOrder.builder().columnId(1L).boardId(1L).orderIndex(1).build();
         // Arrange
-        when(boardRepository.existsById(1L)).thenReturn(true);
+        when(boardRepository.findById(1L)).thenReturn(Optional.of(Board.builder().id(1L).build()));
         when(columnRepository.saveAndFlush(any(Column.class))).thenReturn(testColumn);
         when(columnRepository.findAllByBoard(1L)).thenReturn(Arrays.asList(testColumn));
         when(columnOrderingRepository.saveAndFlush(any(ColumnOrder.class))).thenReturn(columnOrder);
@@ -108,7 +104,6 @@ public class ColumnServiceImplTest {
 
         // Assert
         assertNotNull(createdColumn);
-        verify(boardRepository, times(1)).existsById(1L);
         verify(columnRepository, times(1)).saveAndFlush(any(Column.class));
         verify(columnRepository, times(1)).findAllByBoard(1L);
         verify(columnOrderingRepository, times(1)).saveAndFlush(columnOrder);
@@ -117,7 +112,7 @@ public class ColumnServiceImplTest {
     @Test
     void testCreate_InvalidBoard_ShouldThrowException() throws BoardNotFoundExceptionTrello {
         // Arrange
-        when(boardRepository.existsById(1L)).thenReturn(false);
+        when(boardRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(BoardNotFoundExceptionTrello.class, () -> columnService.create(testColumn));

@@ -5,6 +5,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadRespon
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_order_dto.ColumnOrderEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_order_dto.TaskOrderEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.http.rest.ColumnOrderRestController;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
@@ -83,15 +84,15 @@ class ColumnOrderRestControllerTest {
         ColumnOrderEditRequest request = new ColumnOrderEditRequest();
         request.setColumnId(columnId);
         request.setOrderIndex(2);
-
+        ColumnOrder columnOrder = ColumnOrder.builder().columnId(columnId).orderIndex(2).build();
         // Mocking service method
-        when(columnOrderingService.reorder(any())).thenReturn(1);
+        when(columnOrderingService.reorder(columnOrder, 1L)).thenReturn(12);
 
         // Convert request to JSON
         String requestJson = new ObjectMapper().writeValueAsString(request);
 
         // Perform the PUT request
-        mockMvc.perform(put("/api/v1/boards/columns/{columnId}/reorder", columnId)
+        mockMvc.perform(put("/api/v1/boards/columns/1/reorder", columnId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isOk())
@@ -105,9 +106,10 @@ class ColumnOrderRestControllerTest {
         ColumnOrderEditRequest request = new ColumnOrderEditRequest();
         request.setColumnId(columnId);
         request.setOrderIndex(2);
+        ColumnOrder columnOrder = ColumnOrder.builder().columnId(columnId).orderIndex(2).boardId(1L).build();
 
         // Mocking service method
-        when(columnOrderingService.reorder(any())).thenReturn(0);
+        when(columnOrderingService.reorder(columnOrder, 1L)).thenReturn(0);
 
         // Convert request to JSON
         String requestJson = new ObjectMapper().writeValueAsString(request);

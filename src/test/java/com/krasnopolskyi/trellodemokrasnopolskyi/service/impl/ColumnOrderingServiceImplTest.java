@@ -112,7 +112,7 @@ public class ColumnOrderingServiceImplTest {
         when(columnOrderingRepository.saveAllAndFlush(anyList())).thenReturn(columnOrderList);
 
         // Act
-        int result = columnOrderingService.reorder(columnOrder);
+        int result = columnOrderingService.reorder(columnOrder, 1L);
 
         // Assert
         assertEquals(columnOrderList.size(), result);
@@ -126,6 +126,6 @@ public class ColumnOrderingServiceImplTest {
         // Arrange
         when(columnRepository.findById(1L)).thenReturn(Optional.empty());
         // Act & Assert
-        assertThrows(ColumnNotFoundExceptionTrello.class, () -> columnOrderingService.reorder(columnOrder1));
+        assertThrows(ColumnNotFoundExceptionTrello.class, () -> columnOrderingService.reorder(columnOrder1, 1L));
     }
 }

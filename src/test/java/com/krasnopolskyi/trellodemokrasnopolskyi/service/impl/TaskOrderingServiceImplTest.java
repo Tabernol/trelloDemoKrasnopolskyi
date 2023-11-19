@@ -1,9 +1,11 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.TaskOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ProhibitionMovingException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TaskNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskOrderingRepository;
@@ -45,7 +47,9 @@ public class TaskOrderingServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        task = Task.builder().id(1L).column(Column.builder().id(1L).build()).build();
+        task = Task.builder().id(1L).column(
+                Column.builder().id(1L).board(
+                        Board.builder().id(1L).build()).build()).build();
         taskOrder = TaskOrder.builder().taskId(1L).columnId(1L).orderIndex(1).build();
         taskOrderingService =
                 new TaskOrderingServiceImpl(taskOrderingRepository, taskRepository, columnRepository);
@@ -94,7 +98,7 @@ public class TaskOrderingServiceImplTest {
     }
 
     @Test
-    void testMoveTaskWithinSameColumn() throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello {
+    void testMoveTaskWithinSameColumn() throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello, ProhibitionMovingException {
         // Arrange
         List<TaskOrder> taskOrders = Arrays.asList(taskOrder);
 
@@ -111,8 +115,9 @@ public class TaskOrderingServiceImplTest {
     }
 
     @Test
-    void testMoveTaskToDifferentColumn_ShouldMoveTaskToAnotherColumn() throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello {
+    void testMoveTaskToDifferentColumn_ShouldMoveTaskToAnotherColumn() throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello, ProhibitionMovingException {
         // Arrange
+        Board board = Board.builder().id(12L).name("Board 1").build();
         TaskOrder taskOrderToMove = TaskOrder.builder().taskId(1L).columnId(2L).orderIndex(1).build();
         List<TaskOrder> sourceColumn = Arrays.asList(taskOrderToMove);
         List<TaskOrder> targetColumn = Arrays.asList();
@@ -123,8 +128,11 @@ public class TaskOrderingServiceImplTest {
         when(taskOrderingRepository
                 .findAllByColumnIdOrderByOrderIndex(2L)).thenReturn(targetColumn);
 
-        when(columnRepository.findById(Mockito.anyLong()))
-                .thenReturn(java.util.Optional.of(Column.builder().id(2L).build()));
+        when(columnRepository.findById(1L))
+                .thenReturn(java.util.Optional.of(Column.builder().id(1L).board(board).build()));
+        when(columnRepository.findById(2L))
+                .thenReturn(java.util.Optional.of(Column.builder().id(2L).board(board).build()));
+
 
         // Act
         int result = taskOrderingService.moveTask(taskOrderToMove);
@@ -134,6 +142,27 @@ public class TaskOrderingServiceImplTest {
         verify(taskOrderingRepository, times(2)).saveAllAndFlush(anyList());
         verify(taskRepository, times(1)).saveAndFlush(any(Task.class));
     }
+
+    //can not move to another board
+    @Test
+    void testMoveTaskToDifferentColumn_ShouldThrowException() throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello, ProhibitionMovingException {
+        // Arrange
+        Board board1 = Board.builder().id(12L).name("Board 1").build();
+        Board board2 = Board.builder().id(2L).name("Board 2").build();
+        TaskOrder taskOrderToMove = TaskOrder.builder().taskId(1L).columnId(2L).orderIndex(1).build();
+        List<TaskOrder> sourceColumn = Arrays.asList(taskOrderToMove);
+        List<TaskOrder> targetColumn = Arrays.asList();
+
+        when(taskRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(task));
+        when(columnRepository.findById(1L))
+                .thenReturn(java.util.Optional.of(Column.builder().id(1L).board(board1).build()));
+        when(columnRepository.findById(2L))
+                .thenReturn(java.util.Optional.of(Column.builder().id(2L).board(board2).build()));
+
+        // Act & Assert
+        assertThrows(ProhibitionMovingException.class, () -> taskOrderingService.moveTask(taskOrderToMove));
+    }
+
 
     @Test
     void testMoveTaskWithinSameColumn_ShouldThrowTaskNotFoundExceptionTrello() {

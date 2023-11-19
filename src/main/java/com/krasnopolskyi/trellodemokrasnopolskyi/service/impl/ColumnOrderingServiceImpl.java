@@ -3,7 +3,6 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
-import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
@@ -18,12 +17,15 @@ import java.util.stream.Collectors;
 
 /**
  * Service class that provides business logic for managing the ordering of columns.
+ * @author Maksym Krasnopolskyi
  */
 @Service
 public class ColumnOrderingServiceImpl implements ColumnOrderingService {
 
     private final ColumnOrderingRepository columnOrderingRepository;
     private final ColumnRepository columnRepository;
+
+    public static final String MISMATCHED_IDS = "Mismatched IDs";
 
     /**
      * Constructs a new ColumnOrderingServiceImpl with the given dependencies.
@@ -98,10 +100,10 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
      */
     @Override
     @Transactional
-    public int reorder(ColumnOrder columnOrder) throws ColumnNotFoundExceptionTrello {
-        Long columnId = columnOrder.getColumnId();
+    public int reorder(ColumnOrder columnOrder, Long columnId) throws ColumnNotFoundExceptionTrello {
         Column column = columnRepository.findById(columnId).orElseThrow(
                 () -> new ColumnNotFoundExceptionTrello("Column with id " + columnId + " not found"));
+
         Long boardId = column.getBoard().getId();
 
         List<ColumnOrder> columnOrderList =

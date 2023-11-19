@@ -4,6 +4,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.TaskOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ProhibitionMovingException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TaskNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskOrderingRepository;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * Service class that provides business logic for managing the ordering of tasks.
+ * @author Maksym Krasnopolskyi
  */
 @Service
 @Slf4j
@@ -93,7 +95,7 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
      */
     @Override
     @Transactional
-    public int moveTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello {
+    public int moveTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello, ProhibitionMovingException {
         Task task = getTask(taskOrder);
         Long sourceColumnId = task.getColumn().getId();
         Long targetColumnId = taskOrder.getColumnId();
@@ -140,10 +142,21 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
     }
 
     //this method change column in task-entity and save it.
-    private void saveTaskWithAnotherColumn(Task task, Long columnId) throws ColumnNotFoundExceptionTrello {
+    private void saveTaskWithAnotherColumn(Task task, Long columnId) throws ColumnNotFoundExceptionTrello, ProhibitionMovingException {
         Column column = columnRepository.findById(columnId).orElseThrow(
                 () -> new ColumnNotFoundExceptionTrello("Column with id " + columnId + " not found"));
 
+        // need check belong to board
+        //====================================
+        Long oldColumnId = task.getColumn().getId();
+        Column oldColumn = columnRepository.findById(oldColumnId).orElseThrow(
+                () -> new ColumnNotFoundExceptionTrello("Column with id " + oldColumnId + " not found"));
+
+        if(!oldColumn.getBoard().getId().equals(column.getBoard().getId())){
+            throw new ProhibitionMovingException(
+                    "You can't move task to another board. Column id " + columnId +" is not valid for current board");
+        }
+        //===========================================
         task.setColumn(column);
         taskRepository.saveAndFlush(task);
     }
@@ -165,7 +178,7 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
 
     //it is a complex method that moves tasks to another column in the specified order.
     // But preserves the order of both columns in new order
-    private int moveToAnotherColumn(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello {
+    private int moveToAnotherColumn(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello, ProhibitionMovingException {
         Task task = getTask(taskOrder);
         saveTaskWithAnotherColumn(task, taskOrder.getColumnId());
 

@@ -42,9 +42,9 @@ VALUES
     ('second', 'Description', '2023-11-10 11:00:00', 2),
     ('third', 'Description', '2023-11-10 11:00:00', 2),
 
-    ('for to do', 'board_1', '2023-11-10 11:00:00', 4),
-    ('for in progress', 'board_1', '2023-11-10 11:00:00', 5),
-    ('for done', 'board_1', '2023-11-10 11:00:00', 6)
+    ('for to do', 'board_2', '2023-11-10 11:00:00', 4),
+    ('for in progress', 'board_2', '2023-11-10 11:00:00', 5),
+    ('for done', 'board_2', '2023-11-10 11:00:00', 6)
 
 
 --changeset max:5

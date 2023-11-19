@@ -5,6 +5,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.TaskOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ProhibitionMovingException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TaskNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
@@ -21,6 +22,7 @@ import java.util.List;
 
 /**
  * REST controller class that handles task ordering-related endpoints.
+ * @author Maksym Krasnopolskyi
  */
 @RestController
 @RequestMapping("/api/v1/columns")
@@ -33,7 +35,7 @@ public class TaskOrderRestController {
 
     public static final String ORDER_SUCCESSFUL = "Task moved successfully";
     public static final String ORDER_FAILED = "Task move failed";
-    public static final String MISMATCHED_IDS = "Mismatched task IDs";
+    public static final String MISMATCHED_IDS = "Mismatched IDs";
 
     /**
      * Constructs a new TaskOrderRestController with the given dependencies.
@@ -75,7 +77,7 @@ public class TaskOrderRestController {
     public ResponseEntity<String> moveTask(
             @PathVariable("taskId") @Min(1) Long taskId,
             @Validated @RequestBody TaskOrderEditRequest taskOrderEditRequest)
-            throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
+            throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello, ProhibitionMovingException {
 
         // maybe do it with AOP
         if (!taskId.equals(taskOrderEditRequest.getTaskId())) {
@@ -90,7 +92,6 @@ public class TaskOrderRestController {
 
         int updatedRow = taskOrderingService.moveTask(taskOrder);
 
-        log.info("Updated row = {}", updatedRow);
         return updatedRow > 0 ?
                 ResponseEntity.ok(ORDER_SUCCESSFUL) :
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ORDER_FAILED);

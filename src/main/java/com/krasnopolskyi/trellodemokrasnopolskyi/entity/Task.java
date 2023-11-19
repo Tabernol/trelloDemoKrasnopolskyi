@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
  * Entity class representing a task in a Trello column.
  * <p>
  * This class is annotated with JPA annotations to define its mapping to the database.
+ * @author Maksym Krasnopolskyi
  */
 @Getter
 @Setter
