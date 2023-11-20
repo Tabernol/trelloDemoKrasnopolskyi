@@ -6,7 +6,6 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TaskNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
-import com.krasnopolskyi.trellodemokrasnopolskyi.http.handler.ErrorResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;
@@ -19,13 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-
-import static org.springframework.http.ResponseEntity.noContent;
-import static org.springframework.http.ResponseEntity.notFound;
 
 /**
  * REST controller class that handles task-related endpoints.
@@ -64,7 +58,7 @@ public class TaskRestController {
      * @throws TrelloException If the task is not found.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<TaskReadResponse> get(
+    public ResponseEntity<TaskReadResponse> getTaskById(
             @PathVariable("id") @Min(1) Long id) throws TrelloException {
         return ResponseEntity.status(HttpStatus.OK).body(taskMapper.mapToDto(taskService.findById(id)));
     }
@@ -75,7 +69,7 @@ public class TaskRestController {
      * @return The list of task response entities.
      */
     @GetMapping
-    public ResponseEntity<List<TaskReadResponse>> getAll() {
+    public ResponseEntity<List<TaskReadResponse>> getAllTasks() {
         return ResponseEntity.ok(taskMapper.mapAll(taskService.findAll()));
     }
 
@@ -88,7 +82,7 @@ public class TaskRestController {
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Task> create(
+    public ResponseEntity<Task> createTask(
             @Validated({Default.class, CreateValidationGroup.class})
             @RequestBody TaskCreateEditRequest taskCreateEditRequest) throws TrelloException {
         log.info("Create new task: {}", taskCreateEditRequest.toString());
@@ -108,7 +102,7 @@ public class TaskRestController {
      * @throws TaskNotFoundExceptionTrello   If the task is not found.
      */
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TaskReadResponse> update(
+    public ResponseEntity<TaskReadResponse> updateTask(
             @PathVariable("id") @Min(1) Long id,
             @Validated @RequestBody TaskCreateEditRequest taskCreateEditRequest) throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
         Task task = taskMapper.mapToEntity(taskCreateEditRequest);
@@ -122,7 +116,7 @@ public class TaskRestController {
      * @return The response entity indicating success or failure.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") @Min(1) Long id) {
+    public ResponseEntity<?> deleteTask(@PathVariable("id") @Min(1) Long id) {
         return taskService.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 /**
  * Global exception handler for handling various exceptions that may occur during API requests.
+ *
  * @author Maksym Krasnopolskyi
  */
 @Slf4j(topic = "GLOBAL_EXCEPTION_HANDLER")
@@ -55,6 +56,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             errorResponse.addErrorContent(fieldError.getField(), fieldError.getDefaultMessage());
         }
+        log.warn("Validation error occurred: ", ex);
+        log.info("Response sent: " + errorResponse.getMessage() + errorResponse.getErrors());
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
@@ -68,10 +71,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<Object> handleAllUncaughtException(Exception exception, WebRequest request) {
-        log.error("Unknown error occurred", exception);
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 INTERNAL_SERVER_ERROR_MESSAGE);
+        log.error("Unknown error occurred", exception);
         return ResponseEntity.internalServerError().body(errorResponse);
     }
 
@@ -86,30 +89,31 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleProhibitionMovingException(
             TrelloException exception, WebRequest request) {
+        log.warn("exception of moving the task to another board", exception);
         return buildErrorResponse(exception, HttpStatus.BAD_REQUEST, request);
     }
 
     /**
      * Handles TrelloException and builds a response with an appropriate status code and message.
      *
-     * @param itemNotFoundException The TrelloException.
+     * @param exception The TrelloException.
      * @param request               The current web request.
      * @return ResponseEntity with a response for TrelloException.
      */
     @ExceptionHandler(TrelloException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<Object> handleNoSuchElementFoundException(
-            TrelloException itemNotFoundException, WebRequest request) {
-        log.error("Failed to find the requested entity check passed id", itemNotFoundException);
-        return buildErrorResponse(itemNotFoundException, HttpStatus.NOT_FOUND, request);
+            TrelloException exception, WebRequest request) {
+        log.warn("Failed to find the requested entity check passed id", exception);
+        return buildErrorResponse(exception, HttpStatus.NOT_FOUND, request);
     }
 
     /**
      * Builds a generic error response based on the provided exception, HTTP status, and web request.
      *
-     * @param exception The exception.
+     * @param exception  The exception.
      * @param httpStatus The HTTP status code for the response.
-     * @param request The current web request.
+     * @param request    The current web request.
      * @return ResponseEntity with a generic error response.
      */
     protected ResponseEntity<Object> buildErrorResponse(Exception exception,

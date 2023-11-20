@@ -8,6 +8,5 @@ import java.util.List;
 
 
 public interface TaskService extends BaseService<Task> {
-
     Task update(Task task, Long id) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello;
 }

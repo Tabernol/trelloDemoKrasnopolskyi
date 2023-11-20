@@ -11,8 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class BoardIntegrationTest extends IntegrationTestBase {
@@ -46,6 +45,12 @@ public class BoardIntegrationTest extends IntegrationTestBase {
         // Assert
         assertNotNull(result);
         assertEquals(savedBoard.getId(), result.getId());
+    }
+
+    @Test
+    void findById_NoExistId_ShouldThrowException() throws BoardNotFoundExceptionTrello {
+        // Act & Assert
+        assertThrows(BoardNotFoundExceptionTrello.class, () -> boardService.findById(4L));
     }
 
 

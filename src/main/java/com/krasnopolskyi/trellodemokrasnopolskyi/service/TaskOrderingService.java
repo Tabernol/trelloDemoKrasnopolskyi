@@ -13,7 +13,5 @@ public interface TaskOrderingService {
     TaskOrder insert(Task task);
     List<Task> findAllByColumnByUserOrder(Long columnId);
 
-//    List<Long> findAllIdTasksByColumnInUserOrder(Long columnId);
-
     int moveTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello, ProhibitionMovingException;
 }
