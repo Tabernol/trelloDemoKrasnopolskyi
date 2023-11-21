@@ -11,7 +11,9 @@ and change the order of tasks within a column
 # 3.  Start the project locally
 ## 3.1. Use to run project
 •	Java 17
+
 •	PostgreSQL 15.2 or higher
+
 •	Docker
 
 ## 3.2. How to run
