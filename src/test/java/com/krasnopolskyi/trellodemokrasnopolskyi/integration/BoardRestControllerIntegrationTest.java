@@ -25,7 +25,7 @@ class BoardRestControllerIntegrationTest extends IntegrationTestBase {
 
 
     @Test
-    void testBoardById() {
+    void testBoardByIdIntegrationTest() {
         assertEquals("Board 1", this.restTemplate.getForObject(
                 "http://localhost:" + port + "/api/v1/boards/1", BoardReadResponse.class).getName());
     }

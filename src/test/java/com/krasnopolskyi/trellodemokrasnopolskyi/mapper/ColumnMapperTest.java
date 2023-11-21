@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ColumnMapperTest {
+class ColumnMapperTest {
     // Mock data
     private final ColumnCreateRequest createRequest =
             ColumnCreateRequest.builder().name("Test Column").boardId(1L).build();

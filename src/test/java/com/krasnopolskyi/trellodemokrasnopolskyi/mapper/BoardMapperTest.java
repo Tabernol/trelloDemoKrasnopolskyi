@@ -5,17 +5,13 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BoardMapperTest {
-    private BoardMapper boardMapper = new BoardMapper();
+class BoardMapperTest {
+    private final BoardMapper boardMapper = new BoardMapper();
 
     // Mocked data
     private final BoardCreateRequest createRequest =
@@ -24,8 +20,6 @@ public class BoardMapperTest {
             editRequest = BoardEditRequest.builder().name("Updated Board Name").build();
     private final Board boardEntity =
             Board.builder().id(1L).name("Test Board").owner("test@test.ua").build();
-    private final BoardReadResponse readResponse =
-            BoardReadResponse.builder().id(1L).name("Test Board").owner("test@test.ua").build();
 
     @Test
     void testMapToEntityWithCreateRequest() {
@@ -54,8 +48,6 @@ public class BoardMapperTest {
 
     @Test
     void testMapAll() {
-        MockitoAnnotations.initMocks(this);
-
         // Mock data
         List<Board> boardList = Arrays.asList(boardEntity, new Board(2L, "Another Board", "Jane Doe", null));
 

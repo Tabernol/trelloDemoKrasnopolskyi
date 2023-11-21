@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TaskMapperTest {
+class TaskMapperTest {
     // Mock data
     private final TaskCreateRequest createEditRequest = TaskCreateRequest.builder()
             .name("Test Task")
