@@ -35,10 +35,12 @@ These tests require Docker to be running. Follow the steps below to run the test
 ## 4.2. Unit Tests
 1. Open a terminal window and navigate to the project directory.
 2. Run the following command to execute unit tests:
+
    ./gradlew test
 
 ## 4.3. Integration Tests
 1. Start Docker if it's not already running.
 2. Open a terminal window and navigate to the project directory.
 3. Run the following command to execute integration tests:
+
    ./gradlew check
