@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j(topic = "TRELLO_REST_CONTROLLER_ASPECT_BEFORE")
 public class TrelloRestControllerAspectBefore {
-
+    //log before any GetMapping in RestController
     @Before(value = "com.krasnopolskyi.trellodemokrasnopolskyi.aop.CommonPointcuts.isRestController() " +
             "&& @annotation(org.springframework.web.bind.annotation.GetMapping) " +
             "&& args(id) " +
@@ -18,7 +18,7 @@ public class TrelloRestControllerAspectBefore {
         log.info("{} GetMapping method invoked with id = {}", service, id);
     }
 
-
+    //log before any PostMapping method in RestController
     @Before(value = "com.krasnopolskyi.trellodemokrasnopolskyi.aop.CommonPointcuts.isRestController() " +
             "&& @annotation(org.springframework.web.bind.annotation.PostMapping) " +
             "&& args(dto) " +
@@ -26,7 +26,7 @@ public class TrelloRestControllerAspectBefore {
     public void logPostMethod(Object service, Object dto) {
         log.info("{} PostMapping method invoked with input: {}", service, dto);
     }
-
+    //log before any DeleteMapping method in RestController
     @Before(value = "com.krasnopolskyi.trellodemokrasnopolskyi.aop.CommonPointcuts.isRestController() " +
             "&& @annotation(org.springframework.web.bind.annotation.DeleteMapping) " +
             "&& args(id) " +
@@ -34,7 +34,7 @@ public class TrelloRestControllerAspectBefore {
     public void logDeleteByIdMethod(Object service, Object id) {
         log.info("{} DeleteMapping method invoked wit id {}", service, id);
     }
-
+    //log before any PutMapping method in RestController  with args(id, dto)
     @Before(value = "com.krasnopolskyi.trellodemokrasnopolskyi.aop.CommonPointcuts.isRestController() " +
             "&& @annotation(org.springframework.web.bind.annotation.PutMapping) " +
             "&& args(id, dto) " +
@@ -42,8 +42,6 @@ public class TrelloRestControllerAspectBefore {
     public void logDeleteByIdMethod(Object service, Object id, Object dto) {
         log.info("{} PutMapping method invoked wit id = {}. and body = {}", service, id, dto);
     }
-
-
 
 
 }

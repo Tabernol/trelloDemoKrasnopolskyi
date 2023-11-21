@@ -1,7 +1,8 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.mapper;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class TaskMapper implements BaseMapper<Task, TaskReadResponse, TaskCreateEditRequest> {
+public class TaskMapper implements BaseMapper<Task, TaskReadResponse, TaskCreateRequest> {
 
     public TaskReadResponse mapToDto(Task task) {
         return TaskReadResponse.builder()
@@ -22,11 +23,18 @@ public class TaskMapper implements BaseMapper<Task, TaskReadResponse, TaskCreate
                 .build();
     }
 
-    public Task mapToEntity(TaskCreateEditRequest taskCreateEditRequest) {
+    public Task mapToEntity(TaskCreateRequest taskCreateRequest) {
         return Task.builder()
-                .name(taskCreateEditRequest.getName())
-                .description(taskCreateEditRequest.getDescription())
-                .column(Column.builder().id(taskCreateEditRequest.getColumnId()).build())
+                .name(taskCreateRequest.getName())
+                .description(taskCreateRequest.getDescription())
+                .column(Column.builder().id(taskCreateRequest.getColumnId()).build())
+                .build();
+    }
+
+    public Task mapToEntity(TaskEditRequest taskEditRequest) {
+        return Task.builder()
+                .name(taskEditRequest.getName())
+                .description(taskEditRequest.getDescription())
                 .build();
     }
 

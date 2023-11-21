@@ -18,6 +18,7 @@ import java.util.List;
 
 /**
  * Rest controller for handling column ordering operations in Trello-like boards.
+ *
  * @author Maksym Krasnopolskyi
  */
 @RestController
@@ -63,7 +64,7 @@ public class ColumnOrderRestController {
     /**
      * Reorders a column within a board based on the provided request.
      *
-     * @param columnId              ID of the column to be reordered.
+     * @param columnId               ID of the column to be reordered.
      * @param columnOrderEditRequest Request containing the new order index for the column.
      * @return ResponseEntity indicating the success or failure of the reorder operation.
      * @throws ColumnNotFoundExceptionTrello if the specified column is not found.
@@ -73,11 +74,12 @@ public class ColumnOrderRestController {
             @PathVariable("columnId") @Min(1) Long columnId,
             @Validated() @RequestBody ColumnOrderEditRequest columnOrderEditRequest)
             throws ColumnNotFoundExceptionTrello {
-
         // Check for mismatched IDs in the request
+        // maybe I will do it in service
         if (!columnId.equals(columnOrderEditRequest.getColumnId())) {
             return ResponseEntity.badRequest().body(MISMATCHED_IDS);
         }
+
 
         // Create a ColumnOrder object based on the request
         ColumnOrder columnOrder = ColumnOrder.builder()

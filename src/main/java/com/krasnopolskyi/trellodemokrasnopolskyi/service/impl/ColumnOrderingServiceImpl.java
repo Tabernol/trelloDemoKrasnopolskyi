@@ -6,6 +6,7 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExcepti
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,7 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
     private final ColumnOrderingRepository columnOrderingRepository;
     private final ColumnRepository columnRepository;
 
-    public static final String MISMATCHED_IDS = "Mismatched IDs";
+
 
     /**
      * Constructs a new ColumnOrderingServiceImpl with the given dependencies.

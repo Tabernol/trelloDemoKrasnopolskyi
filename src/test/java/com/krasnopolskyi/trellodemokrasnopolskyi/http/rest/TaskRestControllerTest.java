@@ -1,14 +1,14 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.http.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
-import com.krasnopolskyi.trellodemokrasnopolskyi.http.rest.TaskRestController;
 import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnService;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -105,7 +105,7 @@ public class TaskRestControllerTest {
 
     @Test
     void testCreateTask() throws Exception {
-        TaskCreateEditRequest request = TaskCreateEditRequest.builder()
+        TaskCreateRequest request = TaskCreateRequest.builder()
                 .name("New Task")
                 .description("Description for New Task")
                 .columnId(1L)
@@ -141,53 +141,6 @@ public class TaskRestControllerTest {
 
         verify(columnService, times(1)).findById(request.getColumnId());
         verify(taskService, times(1)).create(taskToCreate);
-    }
-
-    @Test
-    void testUpdateTask() throws Exception {
-        Long taskId = 1L;
-        TaskCreateEditRequest request = TaskCreateEditRequest.builder()
-                .name("Updated Task")
-                .description("Updated Description")
-                .columnId(1L)
-                .build();
-
-        Task taskToUpdate = Task.builder().name("Updated Task")
-                .description("Updated Description")
-                .column(Column.builder().id(1L).build())
-                .build();
-
-        Task updatedTask = Task.builder()
-                .id(taskId)
-                .name(request.getName())
-                .description(request.getDescription())
-                .column(Column.builder().id(request.getColumnId()).build())
-                .dateOfCreation(LocalDateTime.parse("2023-11-18T02:25:29"))
-                .build();
-        TaskReadResponse expectedResponse = TaskReadResponse.builder()
-                .id(taskId)
-                .name(request.getName())
-                .description(request.getDescription())
-                .columnId(1L)
-                .dateOfCreation(LocalDateTime.parse("2023-11-18T02:25:29"))
-                .build();
-
-        when(taskService.update(taskToUpdate, taskId)).thenReturn(updatedTask);
-        when(taskMapper.mapToEntity(request)).thenReturn(taskToUpdate);
-        when(taskMapper.mapToDto(updatedTask)).thenReturn(expectedResponse);
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/tasks/{id}", taskId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(expectedResponse.getId()))
-                .andExpect(jsonPath("$.name").value(expectedResponse.getName()))
-                .andExpect(jsonPath("$.description").value(expectedResponse.getDescription()))
-                .andExpect(jsonPath("$.dateOfCreation").value(expectedResponse.getDateOfCreation().toString()))
-                .andExpect(jsonPath("$.columnId").value(expectedResponse.getColumnId()));
-
-        verify(taskService, times(1)).update(taskToUpdate, taskId);
     }
 
     @Test

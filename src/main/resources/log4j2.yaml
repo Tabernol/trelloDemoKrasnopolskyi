@@ -9,7 +9,7 @@ Configutation:
         Pattern: "%d{ISO8601} %-5p [%c{3}] [%t] %m%n"
     RollingFile:
       - name: APPLICATION
-        fileName: ../logs/my-app.log
+        fileName: logs/my-app.log
         filePattern: "../logs/$${date:yyyy-MM}/my-app-%d{yyyy-MM-dd}-%i.log.gz"
         PatternLayout:
           Pattern: "%d{ISO8601} %-5p [%c{3}] [%t] %m%n"

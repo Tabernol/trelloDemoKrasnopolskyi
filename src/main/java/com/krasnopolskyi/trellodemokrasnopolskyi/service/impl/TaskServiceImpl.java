@@ -19,6 +19,7 @@ import java.util.List;
 
 /**
  * Service class that provides business logic for task-related operations.
+ *
  * @author Maksym Krasnopolskyi
  */
 @Service
@@ -32,9 +33,9 @@ public class TaskServiceImpl implements TaskService {
     /**
      * Constructs a new TaskServiceImpl with the given dependencies.
      *
-     * @param taskRepository       The repository for task entities.
-     * @param taskOrderingService  The service for managing task ordering.
-     * @param columnRepository     The repository for column entities.
+     * @param taskRepository      The repository for task entities.
+     * @param taskOrderingService The service for managing task ordering.
+     * @param columnRepository    The repository for column entities.
      */
     public TaskServiceImpl(TaskRepository taskRepository,
                            TaskOrderingService taskOrderingService,
@@ -105,15 +106,6 @@ public class TaskServiceImpl implements TaskService {
         if (task.getDescription() != null) {
             existingTask.setDescription(task.getDescription());
         }
-
-        if (task.getColumn() != null) {
-            Column column = columnRepository.findById(task.getColumn().getId())
-                    .orElseThrow(()
-                            -> new ColumnNotFoundExceptionTrello(
-                            "Column with id " + task.getColumn().getId() + " not found"));
-            existingTask.setColumn(column);
-        }
-
         return taskRepository.save(existingTask);
     }
 

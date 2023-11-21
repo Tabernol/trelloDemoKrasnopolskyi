@@ -22,6 +22,7 @@ import java.util.List;
 
 /**
  * REST controller class that handles task ordering-related endpoints.
+ *
  * @author Maksym Krasnopolskyi
  */
 @RestController
@@ -67,7 +68,7 @@ public class TaskOrderRestController {
      * Moves a task to a new order index within its column
      * or in another column in the same board.
      *
-     * @param taskId                The ID of the task to move.
+     * @param taskId               The ID of the task to move.
      * @param taskOrderEditRequest The request body containing the details of the task move.
      * @return The response entity indicating the success or failure of the task move.
      * @throws ColumnNotFoundExceptionTrello If the associated column is not found.
@@ -78,8 +79,8 @@ public class TaskOrderRestController {
             @PathVariable("taskId") @Min(1) Long taskId,
             @Validated @RequestBody TaskOrderEditRequest taskOrderEditRequest)
             throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello, ProhibitionMovingException {
-
-        // maybe do it with AOP
+        // Check for mismatched IDs in the request
+        // maybe I will do it in service
         if (!taskId.equals(taskOrderEditRequest.getTaskId())) {
             return ResponseEntity.badRequest().body(MISMATCHED_IDS);
         }

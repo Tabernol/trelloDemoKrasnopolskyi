@@ -1,7 +1,8 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.http.rest;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TaskNotFoundExceptionTrello;
@@ -76,7 +77,7 @@ public class TaskRestController {
     /**
      * Creates a new task.
      *
-     * @param taskCreateEditRequest The request body containing task details.
+     * @param taskCreateRequest The request body containing task details.
      * @return The created task response entity.
      * @throws TrelloException If an error occurs during task creation.
      */
@@ -84,11 +85,11 @@ public class TaskRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Task> createTask(
             @Validated({Default.class, CreateValidationGroup.class})
-            @RequestBody TaskCreateEditRequest taskCreateEditRequest) throws TrelloException {
-        log.info("Create new task: {}", taskCreateEditRequest.toString());
+            @RequestBody TaskCreateRequest taskCreateRequest) throws TrelloException {
+        log.info("Create new task: {}", taskCreateRequest.toString());
         // Checking existing column
-        columnService.findById(taskCreateEditRequest.getColumnId());
-        Task task = taskMapper.mapToEntity(taskCreateEditRequest);
+        columnService.findById(taskCreateRequest.getColumnId());
+        Task task = taskMapper.mapToEntity(taskCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.create(task));
     }
 
@@ -96,7 +97,7 @@ public class TaskRestController {
      * Updates an existing task.
      *
      * @param id                     The ID of the task to update.
-     * @param taskCreateEditRequest The request body containing updated task details.
+     * @param taskEditRequest The request body containing updated task details.
      * @return The updated task response entity.
      * @throws ColumnNotFoundExceptionTrello If the associated column is not found.
      * @throws TaskNotFoundExceptionTrello   If the task is not found.
@@ -104,8 +105,8 @@ public class TaskRestController {
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TaskReadResponse> updateTask(
             @PathVariable("id") @Min(1) Long id,
-            @Validated @RequestBody TaskCreateEditRequest taskCreateEditRequest) throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
-        Task task = taskMapper.mapToEntity(taskCreateEditRequest);
+            @Validated @RequestBody TaskEditRequest taskEditRequest) throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
+        Task task = taskMapper.mapToEntity(taskEditRequest);
         return ResponseEntity.status(HttpStatus.OK).body(taskMapper.mapToDto(taskService.update(task, id)));
     }
 

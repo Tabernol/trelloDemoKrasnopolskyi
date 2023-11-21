@@ -1,6 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.mapper;
 
-import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TaskMapperTest {
     // Mock data
-    private final TaskCreateEditRequest createEditRequest = TaskCreateEditRequest.builder()
+    private final TaskCreateRequest createEditRequest = TaskCreateRequest.builder()
             .name("Test Task")
             .description("Task description")
             .columnId(1L)

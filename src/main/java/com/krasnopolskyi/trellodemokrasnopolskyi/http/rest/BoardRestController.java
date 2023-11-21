@@ -59,7 +59,6 @@ public class BoardRestController {
     @GetMapping("/{id}")
     public ResponseEntity<BoardReadResponse> getBoardById(
             @PathVariable("id") @Min(1) Long id) throws TrelloException {
-        log.info("GET board by id " + id);
         return ResponseEntity.ok(boardMapper.mapToDto(boardService.findById(id)));
     }
 

@@ -128,50 +128,6 @@ public class TaskServiceImplTest {
         verify(taskRepository, times(1)).save(any(Task.class));
     }
 
-    @Test
-    void testUpdate_ExistingTask_ShouldReturnUpdatedTaskAndChangeColumn() throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
-        // Arrange
-        Long taskId = 1L;
-        Column column = Column.builder().id(2L).build();
-        Task updatedTask = Task.builder()
-                .name("Updated name")
-                .description("updated description")
-                .column(column).build();
-
-        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
-        when(taskRepository.save(any(Task.class))).thenReturn(updatedTask);
-        when(columnRepository.findById(2L)).thenReturn(Optional.of(column));
-
-        // Act
-        Task resultTask = taskService.update(updatedTask, taskId);
-
-        // Assert
-        assertNotNull(resultTask);
-        assertEquals(updatedTask.getName(), resultTask.getName());
-        verify(taskRepository, times(1)).findById(taskId);
-        verify(columnRepository, times(1)).findById(2L);
-        verify(taskRepository, times(1)).save(any(Task.class));
-    }
-
-    @Test
-    void testUpdate_ExistingTask_ShouldThrowException_WhenChangeColumn()
-            throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello {
-        // Arrange
-        Column column = Column.builder().id(2L).build();
-        Task updatedTask = Task.builder()
-                .id(1L)
-                .name("Updated name")
-                .description("updated description")
-                .column(column).build();
-
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
-        when(columnRepository.findById(2L)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(ColumnNotFoundExceptionTrello.class, () -> taskService.update(updatedTask, 1L));
-        verify(taskRepository, times(1)).findById(1L);
-        verify(columnRepository, times(1)).findById(2L);
-    }
 
     @Test
     void testUpdate_NonExistingTask_ShouldThrowException() {
