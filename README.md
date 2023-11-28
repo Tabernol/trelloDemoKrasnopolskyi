@@ -8,11 +8,19 @@ create, update, delete and change the order of columns on the same board.
 Users can create, edit, delete, move tasks to different columns, 
 and change the order of tasks within a column
 
-# 3.  Start the project locally
-## 3.1. Use to run project
-•	Java 17
-•	PostgreSQL 15.2 or higher
-•	Docker
+# 3. Start the Project Locally
+
+## 3.1. Use the Following to Run the Project
+Before starting the project locally, ensure you have the following prerequisites installed:
+- **Java 17:**
+    - [Download Java SE Development Kit 17](https://www.oracle.com/java/technologies/javase-downloads.html)
+    - or
+    - [Download OpenJDK 17](https://adoptopenjdk.net/?variant=openjdk17)
+- **PostgreSQL 15.2 or Higher:**
+    - [Download PostgreSQL](https://www.postgresql.org/download/)
+- **Docker:**
+    - [Download Docker Desktop](https://www.docker.com/products/docker-desktop)
+
 
 ## 3.2. How to run
 1. You should open in IntelliJ IDEA 

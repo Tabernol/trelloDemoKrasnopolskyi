@@ -69,7 +69,6 @@ public class BoardServiceImpl implements BoardService {
      * @param board The updated board information.
      * @param id    The ID of the board to update.
      * @return The updated board entity.
-     * @throws BoardNotFoundExceptionTrello If no board with the specified ID is found.
      */
     @Override
     @Transactional
