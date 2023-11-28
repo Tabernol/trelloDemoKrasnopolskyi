@@ -14,8 +14,6 @@ and change the order of tasks within a column
 Before starting the project locally, ensure you have the following prerequisites installed:
 - **Java 17:**
     - [Download Java SE Development Kit 17](https://www.oracle.com/java/technologies/javase-downloads.html)
-    - or
-    - [Download OpenJDK 17](https://adoptopenjdk.net/?variant=openjdk17)
 - **PostgreSQL 15.2 or Higher:**
     - [Download PostgreSQL](https://www.postgresql.org/download/)
 - **Docker:**
