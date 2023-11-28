@@ -8,13 +8,17 @@ create, update, delete and change the order of columns on the same board.
 Users can create, edit, delete, move tasks to different columns, 
 and change the order of tasks within a column
 
-# 3.  Start the project locally
-## 3.1. Use to run project
-•	Java 17
+# 3. Start the Project Locally
 
-•	PostgreSQL 15.2 or higher
+## 3.1. Use the Following to Run the Project
+Before starting the project locally, ensure you have the following prerequisites installed:
+- **Java 17:**
+    - [Download Java SE Development Kit 17](https://www.oracle.com/java/technologies/javase-downloads.html)
+- **PostgreSQL 15.2 or Higher:**
+    - [Download PostgreSQL](https://www.postgresql.org/download/)
+- **Docker:**
+    - [Download Docker Desktop](https://www.docker.com/products/docker-desktop)
 
-•	Docker
 
 ## 3.2. How to run
 1. You should open in IntelliJ IDEA 
@@ -37,12 +41,10 @@ These tests require Docker to be running. Follow the steps below to run the test
 ## 4.2. Unit Tests
 1. Open a terminal window and navigate to the project directory.
 2. Run the following command to execute unit tests:
-
    ./gradlew test
 
 ## 4.3. Integration Tests
 1. Start Docker if it's not already running.
 2. Open a terminal window and navigate to the project directory.
 3. Run the following command to execute integration tests:
-
    ./gradlew check

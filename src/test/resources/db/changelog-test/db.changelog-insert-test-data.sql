@@ -6,8 +6,7 @@ VALUES ('Board 1', 'Owner 1'),
        ('Board 2', 'Owner 2')
 
        --changeset max:2
-    INSERT
-INTO krasnopolskyi.columns (name, board_id)
+INSERT INTO krasnopolskyi.columns (name, board_id)
 VALUES
     ('column 1', 1),
     ('column 2', 1),
