@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS krasnopolskyi.tasks
     name             VARCHAR(64) NOT NULL,
     description      VARCHAR(256),
     date_of_creation TIMESTAMP,
+    status           VARCHAR(32),
     column_id        BIGINT NOT NULL REFERENCES krasnopolskyi.columns (id) ON DELETE CASCADE
     );
 --changeset max:5

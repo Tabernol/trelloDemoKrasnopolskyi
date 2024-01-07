@@ -1,5 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.StatusNotFoundExceptionTrello;
 import lombok.Getter;
 
@@ -15,7 +16,7 @@ public enum Status {
     FAILED(5);
     private int order;
 
-    private Status(int order) {
+    Status(int order) {
         this.order = order;
     }
 

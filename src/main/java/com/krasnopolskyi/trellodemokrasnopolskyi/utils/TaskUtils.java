@@ -49,7 +49,7 @@ public class TaskUtils {
     }
 
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 50000)
     public void setRandomStatusToRandoTask() {
         taskRepository.findAllActiveTask()
                 .forEach(task -> {
