@@ -35,14 +35,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ColumnRestControllerTest {
     @MockBean
     private ColumnService columnService;
-    @MockBean
-    private ColumnMapper columnMapper;
     @InjectMocks
     private ColumnRestController columnRestController;
-
     @Autowired
     private MockMvc mockMvc;
-
     private Column testColumn;
 
     public void setUp() {
@@ -55,8 +51,8 @@ class ColumnRestControllerTest {
         Long columnId = 1L;
         ColumnReadResponse columnReadResponse = ColumnReadResponse.builder().id(columnId).name("Test Column").build();
 
-        when(columnService.findById(columnId)).thenReturn(new Column());
-        when(columnMapper.mapToDto(any(Column.class))).thenReturn(columnReadResponse);
+        when(columnService.findById(columnId)).thenReturn(columnReadResponse);
+
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/columns/{id}", columnId))
                 .andExpect(status().isOk())
@@ -65,7 +61,6 @@ class ColumnRestControllerTest {
                 .andExpect(jsonPath("$.name").value("Test Column"));
 
         verify(columnService, times(1)).findById(columnId);
-        verify(columnMapper, times(1)).mapToDto(any(Column.class));
     }
 
     @Test
@@ -75,8 +70,8 @@ class ColumnRestControllerTest {
                 ColumnReadResponse.builder().id(2L).name("Column 2").build()
         );
 
-        when(columnService.findAll()).thenReturn(Collections.emptyList());
-        when(columnMapper.mapAll(anyList())).thenReturn(columnList);
+        when(columnService.findAll()).thenReturn(columnList);
+
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/columns"))
                 .andExpect(status().isOk())
@@ -87,16 +82,15 @@ class ColumnRestControllerTest {
                 .andExpect(jsonPath("$[1].name").value("Column 2"));
 
         verify(columnService, times(1)).findAll();
-        verify(columnMapper, times(1)).mapAll(anyList());
     }
 
     @Test
     void testCreateColumn() throws Exception {
         ColumnCreateRequest columnCreateRequest = ColumnCreateRequest.builder().name("New Column").boardId(1L).build();
         Column column = Column.builder().id(1L).name("New Column").build();
+        ColumnReadResponse columnReadResponse = ColumnReadResponse.builder().id(1L).name("New Column").build();
 
-        when(columnMapper.mapToEntity(columnCreateRequest)).thenReturn(column);
-        when(columnService.create(column)).thenReturn(column);
+        when(columnService.create(columnCreateRequest)).thenReturn(columnReadResponse);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/columns")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -106,8 +100,7 @@ class ColumnRestControllerTest {
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("New Column"));
 
-        verify(columnMapper, times(1)).mapToEntity(columnCreateRequest);
-        verify(columnService, times(1)).create(column);
+        verify(columnService, times(1)).create(columnCreateRequest);
     }
 
     @Test
@@ -117,9 +110,7 @@ class ColumnRestControllerTest {
         Column column = Column.builder().id(columnId).name("Updated Column").build();
         ColumnReadResponse columnReadResponse = ColumnReadResponse.builder().id(columnId).name("Updated Column").build();
 
-        when(columnMapper.mapToEntity(columnEditRequest)).thenReturn(column);
-        when(columnService.update(column, columnId)).thenReturn(column);
-        when(columnMapper.mapToDto(column)).thenReturn(columnReadResponse);
+        when(columnService.update(columnEditRequest, columnId)).thenReturn(columnReadResponse);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/columns/{id}", columnId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -129,9 +120,7 @@ class ColumnRestControllerTest {
                 .andExpect(jsonPath("$.id").value(columnId))
                 .andExpect(jsonPath("$.name").value("Updated Column"));
 
-        verify(columnMapper, times(1)).mapToEntity(columnEditRequest);
-        verify(columnService, times(1)).update(column, columnId);
-        verify(columnMapper, times(1)).mapToDto(column);
+        verify(columnService, times(1)).update(columnEditRequest, columnId);
     }
 
     @Test

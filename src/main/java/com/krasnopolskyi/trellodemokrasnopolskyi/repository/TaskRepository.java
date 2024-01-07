@@ -14,7 +14,7 @@ import java.util.Map;
 public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("SELECT t FROM Task t WHERE t.column.id = :columnId")
     List<Task> findAllByColumn(@Param("columnId") Long columnId);
-
-//    List<Task> findAllById(Iterable<Long> id);
+    @Query("SELECT t FROM Task t WHERE t.status NOT IN ('FAILED', 'COMPLETED')")
+    List<Task> findAllActiveTask();
 
 }

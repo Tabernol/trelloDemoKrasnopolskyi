@@ -26,7 +26,7 @@ class TaskRestControllerIntegrationTest extends IntegrationTestBase {
     @Test
     void getTaskById_ExistingId_ReturnsTask() {
         // Arrange & Act
-        ResponseEntity<TaskReadResponse> response = restTemplate.getForEntity(
+        ResponseEntity<TaskReadResponse> response = restTemplate.getForEntity("http://localhost:" + port +
                 "/api/v1/tasks/{id}", TaskReadResponse.class, 10);
 
         // Assert
@@ -38,7 +38,7 @@ class TaskRestControllerIntegrationTest extends IntegrationTestBase {
     @Test
     void getTaskById_NoExistId_ShouldReturnNotFound() {
         // Arrange & Act
-        ResponseEntity<TaskReadResponse> response = restTemplate.getForEntity(
+        ResponseEntity<TaskReadResponse> response = restTemplate.getForEntity("http://localhost:" + port +
                 "/api/v1/tasks/{id}", TaskReadResponse.class, 1234);
 
         // Assert
@@ -53,7 +53,7 @@ class TaskRestControllerIntegrationTest extends IntegrationTestBase {
         // Set request with valid data
 
         // Act
-        ResponseEntity<Task> response = restTemplate.postForEntity(
+        ResponseEntity<Task> response = restTemplate.postForEntity("http://localhost:" + port +
                 "/api/v1/tasks", request, Task.class);
 
         // Assert
@@ -68,7 +68,7 @@ class TaskRestControllerIntegrationTest extends IntegrationTestBase {
         // Set request with validation errors
 
         // Act
-        ResponseEntity<ErrorResponse> response = restTemplate.postForEntity(
+        ResponseEntity<ErrorResponse> response = restTemplate.postForEntity("http://localhost:" + port +
                 "/api/v1/tasks", request, ErrorResponse.class);
 
         // Assert
@@ -87,8 +87,8 @@ class TaskRestControllerIntegrationTest extends IntegrationTestBase {
         // Set request with valid data
 
         // Act
-        ResponseEntity<TaskReadResponse> response = restTemplate.exchange(
-                "/api/v1/tasks/{id}", HttpMethod.PUT,
+        ResponseEntity<TaskReadResponse> response = restTemplate.exchange("http://localhost:" + port +
+                        "/api/v1/tasks/{id}", HttpMethod.PUT,
                 new HttpEntity<>(request), TaskReadResponse.class, 10L);
 
         // Assert
@@ -109,8 +109,8 @@ class TaskRestControllerIntegrationTest extends IntegrationTestBase {
         // Set request with validation errors
 
         // Act
-        ResponseEntity<ErrorResponse> response = restTemplate.exchange(
-                "/api/v1/tasks/{id}", HttpMethod.PUT,
+        ResponseEntity<ErrorResponse> response = restTemplate.exchange("http://localhost:" + port +
+                        "/api/v1/tasks/{id}", HttpMethod.PUT,
                 new HttpEntity<>(request), ErrorResponse.class, 10L);
 
         // Assert
@@ -121,8 +121,8 @@ class TaskRestControllerIntegrationTest extends IntegrationTestBase {
     @Test
     void deleteTask_ExistingId_ShouldReturnNoContent() {
         // Arrange & Act
-        ResponseEntity<Void> response = restTemplate.exchange(
-                "/api/v1/tasks/{id}", HttpMethod.DELETE,
+        ResponseEntity<Void> response = restTemplate.exchange("http://localhost:" + port +
+                        "/api/v1/tasks/{id}", HttpMethod.DELETE,
                 null, Void.class, 9L);
 
         // Assert
@@ -132,8 +132,8 @@ class TaskRestControllerIntegrationTest extends IntegrationTestBase {
     @Test
     void deleteTask_NoExistId_ShouldReturnNotFound() {
         // Act & Assert
-        ResponseEntity<Void> response = restTemplate.exchange(
-                "/api/v1/tasks/{id}", HttpMethod.DELETE,
+        ResponseEntity<Void> response = restTemplate.exchange("http://localhost:" + port +
+                        "/api/v1/tasks/{id}", HttpMethod.DELETE,
                 null, Void.class, 1000L);
 
         // Assert

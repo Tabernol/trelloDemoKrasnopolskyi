@@ -106,7 +106,7 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
     /**
      * Reorders a column based on the provided column order.
      *
-     * @param columnOrder The column order information.
+     * @param columnOrderEditRequest The column order information.
      * @return The total number of columns affected.
      * @throws ColumnNotFoundExceptionTrello If the associated column is not found.
      */

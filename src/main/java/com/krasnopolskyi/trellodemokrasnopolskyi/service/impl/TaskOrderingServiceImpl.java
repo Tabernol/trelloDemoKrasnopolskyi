@@ -1,17 +1,23 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_order_dto.TaskOrderEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.TaskOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ProhibitionMovingException;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TaskNotFoundExceptionTrello;
+import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
+import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.TaskMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskOrderingService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -20,6 +26,7 @@ import java.util.stream.Collectors;
 
 /**
  * Service class that provides business logic for managing the ordering of tasks.
+ *
  * @author Maksym Krasnopolskyi
  */
 @Service
@@ -29,6 +36,9 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
     private final TaskOrderingRepository taskOrderingRepository;
     private final TaskRepository taskRepository;
     private final ColumnRepository columnRepository;
+    private final TaskMapper taskMapper;
+
+    public static final String MISMATCHED_IDS = "Mismatched IDs";
 
     /**
      * Constructs a new TaskOrderingServiceImpl with the given dependencies.
@@ -36,13 +46,15 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
      * @param taskOrderingRepository The repository for task ordering entities.
      * @param taskRepository         The repository for task entities.
      * @param columnRepository       The repository for column entities.
+     * @param taskMapper
      */
     public TaskOrderingServiceImpl(TaskOrderingRepository taskOrderingRepository,
                                    TaskRepository taskRepository,
-                                   ColumnRepository columnRepository) {
+                                   ColumnRepository columnRepository, TaskMapper taskMapper) {
         this.taskOrderingRepository = taskOrderingRepository;
         this.taskRepository = taskRepository;
         this.columnRepository = columnRepository;
+        this.taskMapper = taskMapper;
     }
 
     /**
@@ -70,7 +82,7 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
      * @return A list of tasks in the user-defined order for the specified column.
      */
     @Override
-    public List<Task> findAllByColumnByUserOrder(Long columnId) {
+    public List<TaskReadResponse> findAllByColumnByUserOrder(Long columnId) {
         List<Task> listOfTask = taskRepository.findAllByColumn(columnId);// none sorted
 
         List<Long> userOrder = findAllIdTasksByColumnInUserOrder(columnId);//only id of Task in user order
@@ -79,23 +91,37 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
                 .stream()
                 .collect(Collectors.toMap((Task::getId), Function.identity()));
 
-        return userOrder
+        return taskMapper.mapAll(userOrder
                 .stream()
                 .map(tasks::get)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+    }
+
+    private TaskOrder requestToMovingTask(Long taskId,TaskOrderEditRequest taskOrderEditRequest) throws TrelloException {
+        // Check for mismatched IDs in the request
+        if (!taskId.equals(taskOrderEditRequest.getTaskId())) {
+            throw new TrelloException(MISMATCHED_IDS);
+        }
+        return TaskOrder.builder()
+                .taskId(taskOrderEditRequest.getTaskId())
+                .columnId(taskOrderEditRequest.getColumnId())
+                .orderIndex(taskOrderEditRequest.getNewOrderIndex())
+                .build();
     }
 
     /**
      * Moves a task within or between columns based on the provided task order.
      *
-     * @param taskOrder The task order information.
+     * @param taskOrderEditRequest The task order information.
      * @return The total number of tasks affected.
      * @throws TaskNotFoundExceptionTrello   If the associated task is not found.
      * @throws ColumnNotFoundExceptionTrello If the associated column is not found.
      */
     @Override
     @Transactional
-    public int moveTask(TaskOrder taskOrder) throws TaskNotFoundExceptionTrello, ColumnNotFoundExceptionTrello, ProhibitionMovingException {
+    public int moveTask(Long taskId,TaskOrderEditRequest taskOrderEditRequest) throws TrelloException {
+        TaskOrder taskOrder = requestToMovingTask(taskId, taskOrderEditRequest);
+
         Task task = getTask(taskOrder);
         Long sourceColumnId = task.getColumn().getId();
         Long targetColumnId = taskOrder.getColumnId();
@@ -152,11 +178,11 @@ public class TaskOrderingServiceImpl implements TaskOrderingService {
         Column oldColumn = columnRepository.findById(oldColumnId).orElseThrow(
                 () -> new ColumnNotFoundExceptionTrello("Column with id " + oldColumnId + " not found"));
 
-        if(!oldColumn.getBoard().getId().equals(column.getBoard().getId())){
+        if (!oldColumn.getBoard().getId().equals(column.getBoard().getId())) {
             throw new ProhibitionMovingException(
-                    "You can't move task to another board. Column id " + columnId +" is not valid for current board");
+                    "You can't move task to another board. Column id " + columnId + " is not valid for current board");
         }
-        //===========================================
+
         task.setColumn(column);
         taskRepository.saveAndFlush(task);
     }

@@ -54,7 +54,7 @@ public class BoardRestController {
     @GetMapping("/{id}")
     public ResponseEntity<BoardReadResponse> getBoardById(
             @PathVariable("id") @Min(1) Long id) throws TrelloException {
-        return ResponseEntity.ok(boardService.findById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(boardService.findById(id));
     }
 
     /**
@@ -64,7 +64,7 @@ public class BoardRestController {
      */
     @GetMapping
     public ResponseEntity<List<BoardReadResponse>> getAllBoards() {
-        return ResponseEntity.ok(boardService.findAll());
+        return ResponseEntity.status(HttpStatus.OK).body(boardService.findAll());
     }
 
     /**
@@ -77,7 +77,7 @@ public class BoardRestController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<BoardReadResponse> createBoard(
-            @Validated @RequestBody BoardCreateRequest boardCreateRequest) throws TrelloException {
+            @Validated @RequestBody BoardCreateRequest boardCreateRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(boardService.create(boardCreateRequest));
     }
 

@@ -1,6 +1,7 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.http.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskCreateRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto.TaskReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
@@ -31,13 +32,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith({MockitoExtension.class, SpringExtension.class})
 @WebMvcTest(TaskRestController.class)
-public class TaskRestControllerTest {
+class TaskRestControllerTest {
     @MockBean
     private TaskService taskService;
     @MockBean
     private ColumnService columnService;
-    @MockBean
-    private TaskMapper taskMapper;
     @InjectMocks
     private TaskRestController taskRestController;
     @Autowired
@@ -45,7 +44,7 @@ public class TaskRestControllerTest {
 
     @Test
     void testGetTaskById() throws Exception {
-        taskRestController = new TaskRestController(taskService, columnService, taskMapper);
+        taskRestController = new TaskRestController(taskService);
         Long taskId = 1L;
         LocalDateTime testTime = LocalDateTime.parse("2023-11-18T02:25:29");
         Task task = Task.builder()
@@ -62,8 +61,7 @@ public class TaskRestControllerTest {
                 .columnId(1L)
                 .build();
 
-        when(taskService.findById(taskId)).thenReturn(task);
-        when(taskMapper.mapToDto(task)).thenReturn(expectedResponse);
+        when(taskService.findById(taskId)).thenReturn(expectedResponse);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/tasks/{id}", taskId))
                 .andExpect(status().isOk())
@@ -83,13 +81,13 @@ public class TaskRestControllerTest {
                 Task.builder().id(1L).name("Task 1").build(),
                 Task.builder().id(2L).name("Task 2").build()
         );
+
         List<TaskReadResponse> expectedResponses =
                 Arrays.asList(
                         TaskReadResponse.builder().id(1L).name("task 1").build(),
                         TaskReadResponse.builder().id(2L).name("task 2").build());
 
-        when(taskService.findAll()).thenReturn(tasks);
-        when(taskMapper.mapAll(tasks)).thenReturn(expectedResponses);
+        when(taskService.findAll()).thenReturn(expectedResponses);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/tasks"))
                 .andExpect(status().isOk())
@@ -111,23 +109,17 @@ public class TaskRestControllerTest {
                 .columnId(1L)
                 .build();
 
-
-        Task taskToCreate = Task.builder().name("New Task")
-                .description("Description for New Task")
-                .column(Column.builder().id(1L).build())
-                .build();
-
-        Task createdTask = Task.builder()
+        TaskReadResponse createdTask = TaskReadResponse.builder()
                 .id(1L)
                 .name(request.getName())
                 .description(request.getDescription())
-                .column(Column.builder().id(request.getColumnId()).build())
+                .columnId(1L)
                 .dateOfCreation(LocalDateTime.parse("2023-11-18T02:25:29"))
                 .build();
 
-        when(taskMapper.mapToEntity(request)).thenReturn(taskToCreate);
-        when(columnService.findById(request.getColumnId())).thenReturn(Column.builder().id(request.getColumnId()).build());
-        when(taskService.create(taskToCreate)).thenReturn(createdTask);
+        when(columnService.findById(request.getColumnId())).
+                thenReturn(ColumnReadResponse.builder().id(request.getColumnId()).build());
+        when(taskService.create(request)).thenReturn(createdTask);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -139,8 +131,7 @@ public class TaskRestControllerTest {
                 .andExpect(jsonPath("$.description").value(createdTask.getDescription()))
                 .andExpect(jsonPath("$.dateOfCreation").value(createdTask.getDateOfCreation().toString()));
 
-        verify(columnService, times(1)).findById(request.getColumnId());
-        verify(taskService, times(1)).create(taskToCreate);
+        verify(taskService, times(1)).create(request);
     }
 
     @Test

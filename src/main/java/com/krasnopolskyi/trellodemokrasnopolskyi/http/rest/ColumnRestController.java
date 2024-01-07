@@ -52,7 +52,7 @@ public class ColumnRestController {
     @GetMapping("/{id}")
     public ResponseEntity<ColumnReadResponse> getColumnById(
             @PathVariable("id") @Min(1) Long id) throws TrelloException {
-        return ResponseEntity.ok(columnService.findById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(columnService.findById(id));
     }
 
     /**
@@ -62,7 +62,7 @@ public class ColumnRestController {
      */
     @GetMapping
     public ResponseEntity<List<ColumnReadResponse>> getAllColumns() {
-        return ResponseEntity.ok(columnMapper.mapAll(columnService.findAll()));
+        return ResponseEntity.status(HttpStatus.OK).body(columnService.findAll());
     }
 
     /**
@@ -74,10 +74,9 @@ public class ColumnRestController {
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Column> createColumn(
+    public ResponseEntity<ColumnReadResponse> createColumn(
             @Validated @RequestBody ColumnCreateRequest columnCreateRequest) throws TrelloException {
-        Column column = columnMapper.mapToEntity(columnCreateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(columnService.create(column));
+        return ResponseEntity.status(HttpStatus.CREATED).body(columnService.create(columnCreateRequest));
     }
 
     /**
@@ -92,8 +91,7 @@ public class ColumnRestController {
     public ResponseEntity<ColumnReadResponse> updateColumn(
             @PathVariable("id") @Min(1) Long id,
             @Validated @RequestBody ColumnEditRequest columnEditRequest) throws ColumnNotFoundExceptionTrello {
-        Column column = columnMapper.mapToEntity(columnEditRequest);
-        return ResponseEntity.ok(columnMapper.mapToDto(columnService.update(column, id)));
+        return ResponseEntity.status(HttpStatus.OK).body(columnService.update(columnEditRequest, id));
     }
 
     /**

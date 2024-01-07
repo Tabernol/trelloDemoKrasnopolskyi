@@ -4,13 +4,8 @@ spring:
     name: postgres
     password: postgres
 
-#    url: jdbc:postgresql://34.118.53.198:5432/postgres
-#    name: postgres
-#    password: postgres
-
   jpa:
     properties.hibernate:
-      show_sql: true
       format_sql: true
-            #      hbm2ddl.auto: validate
+
 

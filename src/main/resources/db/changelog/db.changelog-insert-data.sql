@@ -31,20 +31,20 @@ VALUES
 
 
 --changeset max:4
-INSERT INTO krasnopolskyi.tasks (name, description, date_of_creation, column_id)
+INSERT INTO krasnopolskyi.tasks (name, description, date_of_creation, column_id, status)
 VALUES
-    ('Task 1', 'Description 1', '2023-11-10 10:00:00', 1),
-    ('Task 2', 'Description 2', '2023-11-10 11:00:00', 1),
-    ('Task 3', 'Description 3', '2023-11-10 11:00:00', 1),
-    ('Task 4', 'Description 4', '2023-11-10 11:00:00', 1),
+    ('Task 1', 'Description 1', '2023-11-10 10:00:00', 1, 'CREATED'),
+    ('Task 2', 'Description 2', '2023-11-10 11:00:00', 1, 'CREATED'),
+    ('Task 3', 'Description 3', '2023-11-10 11:00:00', 1, 'CREATED'),
+    ('Task 4', 'Description 4', '2023-11-10 11:00:00', 1, 'CREATED'),
 --
-    ('first', 'Description', '2023-11-10 11:00:00', 2),
-    ('second', 'Description', '2023-11-10 11:00:00', 2),
-    ('third', 'Description', '2023-11-10 11:00:00', 2),
+    ('first', 'Description', '2023-11-10 11:00:00', 2, 'CREATED'),
+    ('second', 'Description', '2023-11-10 11:00:00', 2, 'CREATED'),
+    ('third', 'Description', '2023-11-10 11:00:00', 2, 'CREATED'),
 
-    ('for to do', 'board_2', '2023-11-10 11:00:00', 4),
-    ('for in progress', 'board_2', '2023-11-10 11:00:00', 5),
-    ('for done', 'board_2', '2023-11-10 11:00:00', 6)
+    ('for to do', 'board_2', '2023-11-10 11:00:00', 4, 'CREATED'),
+    ('for in progress', 'board_2', '2023-11-10 11:00:00', 5, 'CREATED'),
+    ('for done', 'board_2', '2023-11-10 11:00:00', 6, 'CREATED')
 
 
 --changeset max:5

@@ -28,7 +28,6 @@ public class ColumnServiceImpl implements ColumnService {
     private final BoardRepository boardRepository;
     private final ColumnRepository columnRepository;
     private final ColumnOrderingService columnOrderingService;
-
     private final ColumnMapper columnMapper;
 
     /**
@@ -40,7 +39,6 @@ public class ColumnServiceImpl implements ColumnService {
      * @param columnMapper          Mapper
      */
     public ColumnServiceImpl(
-
             BoardRepository boardRepository, ColumnRepository columnRepository,
             ColumnOrderingService columnOrderingService, ColumnMapper columnMapper) {
         this.boardRepository = boardRepository;

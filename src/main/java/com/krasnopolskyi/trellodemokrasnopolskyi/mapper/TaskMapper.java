@@ -19,6 +19,7 @@ public class TaskMapper implements BaseMapper<Task, TaskReadResponse, TaskCreate
                 .name(task.getName())
                 .description(task.getDescription())
                 .dateOfCreation(task.getDateOfCreation())
+                .status(task.getStatus())
                 .columnId(task.getColumn().getId())
                 .build();
     }
@@ -35,6 +36,7 @@ public class TaskMapper implements BaseMapper<Task, TaskReadResponse, TaskCreate
         return Task.builder()
                 .name(taskEditRequest.getName())
                 .description(taskEditRequest.getDescription())
+                .status(taskEditRequest.getStatus())
                 .build();
     }
 

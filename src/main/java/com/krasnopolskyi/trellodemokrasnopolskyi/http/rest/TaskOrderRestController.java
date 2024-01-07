@@ -32,23 +32,18 @@ import java.util.List;
 public class TaskOrderRestController {
 
     private final TaskOrderingService taskOrderingService;
-    private final TaskMapper taskMapper;
-
     public static final String ORDER_SUCCESSFUL = "Task moved successfully";
     public static final String ORDER_FAILED = "Task move failed";
-    public static final String MISMATCHED_IDS = "Mismatched IDs";
+
 
     /**
      * Constructs a new TaskOrderRestController with the given dependencies.
      *
      * @param taskOrderingService The service for managing task ordering.
-     * @param taskMapper          The mapper for converting task-related DTOs.
      */
     public TaskOrderRestController(
-            TaskOrderingService taskOrderingService,
-            TaskMapper taskMapper) {
+            TaskOrderingService taskOrderingService) {
         this.taskOrderingService = taskOrderingService;
-        this.taskMapper = taskMapper;
     }
 
     /**
@@ -60,8 +55,7 @@ public class TaskOrderRestController {
     @GetMapping("/{columnId}/tasks/order")
     public ResponseEntity<List<TaskReadResponse>> getOrderedTasks(
             @PathVariable @Min(1) Long columnId) {
-        List<Task> sortedTask = taskOrderingService.findAllByColumnByUserOrder(columnId);
-        return ResponseEntity.ok(taskMapper.mapAll(sortedTask));
+        return ResponseEntity.status(HttpStatus.OK).body(taskOrderingService.findAllByColumnByUserOrder(columnId));
     }
 
     /**
@@ -78,23 +72,11 @@ public class TaskOrderRestController {
     public ResponseEntity<String> moveTask(
             @PathVariable("taskId") @Min(1) Long taskId,
             @Validated @RequestBody TaskOrderEditRequest taskOrderEditRequest)
-            throws ColumnNotFoundExceptionTrello, TaskNotFoundExceptionTrello, ProhibitionMovingException {
-        // Check for mismatched IDs in the request
-        // maybe I will do it in service
-        if (!taskId.equals(taskOrderEditRequest.getTaskId())) {
-            return ResponseEntity.badRequest().body(MISMATCHED_IDS);
-        }
-
-        TaskOrder taskOrder = TaskOrder.builder()
-                .taskId(taskOrderEditRequest.getTaskId())
-                .columnId(taskOrderEditRequest.getColumnId())
-                .orderIndex(taskOrderEditRequest.getNewOrderIndex())
-                .build();
-
-        int updatedRow = taskOrderingService.moveTask(taskOrder);
+            throws TrelloException {
+        int updatedRow = taskOrderingService.moveTask(taskId, taskOrderEditRequest);
 
         return updatedRow > 0 ?
-                ResponseEntity.ok(ORDER_SUCCESSFUL) :
+                ResponseEntity.status(HttpStatus.OK).body(ORDER_SUCCESSFUL) :
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ORDER_FAILED);
     }
 }

@@ -1,5 +1,8 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnCreateRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
@@ -44,11 +47,18 @@ class ColumnServiceImplTest {
     @InjectMocks
     private ColumnServiceImpl columnService;
     private Column testColumn;
+    private ColumnCreateRequest columnCreateRequest;
+    private ColumnEditRequest columnEditRequest;
+
+    private ColumnReadResponse columnReadResponse;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         testColumn = Column.builder().id(1L).name("Test Column").board(Board.builder().id(1L).build()).build();
+        columnCreateRequest = ColumnCreateRequest.builder().name("Test Column").boardId(1L).build();
+        columnEditRequest = ColumnEditRequest.builder().name("Test Column").build();
+        columnReadResponse = ColumnReadResponse.builder().id(1L).name("Test Column").boardId(1L).build();
         columnOrderingService = new ColumnOrderingServiceImpl(columnOrderingRepository, columnRepository, columnMapper);
         columnService = new ColumnServiceImpl(boardRepository, columnRepository, columnOrderingService, columnMapper);
     }
@@ -59,7 +69,7 @@ class ColumnServiceImplTest {
         when(columnRepository.findById(1L)).thenReturn(Optional.of(testColumn));
 
         // Act
-        Column resultColumn = columnService.findById(1L);
+        ColumnReadResponse resultColumn = columnService.findById(1L);
 
         // Assert
         assertNotNull(resultColumn);
@@ -84,12 +94,12 @@ class ColumnServiceImplTest {
         when(columnRepository.findAll()).thenReturn(Collections.singletonList(testColumn));
 
         // Act
-        List<Column> resultColumns = columnService.findAll();
+        List<ColumnReadResponse> resultColumns = columnService.findAll();
 
         // Assert
         assertFalse(resultColumns.isEmpty());
         assertEquals(1, resultColumns.size());
-        assertEquals(testColumn, resultColumns.get(0));
+        assertEquals(columnReadResponse, resultColumns.get(0));
         verify(columnRepository, times(1)).findAll();
     }
 
@@ -103,7 +113,7 @@ class ColumnServiceImplTest {
         when(columnOrderingRepository.saveAndFlush(any(ColumnOrder.class))).thenReturn(columnOrder);
 
         // Act
-        Column createdColumn = columnService.create(testColumn);
+        ColumnReadResponse createdColumn = columnService.create(columnCreateRequest);
 
         // Assert
         assertNotNull(createdColumn);
@@ -118,19 +128,20 @@ class ColumnServiceImplTest {
         when(boardRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(BoardNotFoundExceptionTrello.class, () -> columnService.create(testColumn));
+        assertThrows(BoardNotFoundExceptionTrello.class, () -> columnService.create(columnCreateRequest));
     }
 
 
     @Test
     void testUpdate_ExistingColumn_ShouldReturnUpdatedColumn() throws ColumnNotFoundExceptionTrello {
         // Arrange
-        Column updatedColumn = Column.builder().id(1L).name("Updated Column").build();
+        Column updatedColumn = Column.builder().id(1L).board(Board.builder().id(1L).build()).name("Updated Column").build();
         when(columnRepository.findById(1L)).thenReturn(Optional.of(testColumn));
-        when(columnRepository.save(any(Column.class))).thenReturn(updatedColumn);
+        when(columnRepository.save(testColumn)).thenReturn(updatedColumn);
+
 
         // Act
-        Column resultColumn = columnService.update(updatedColumn, 1L);
+        ColumnReadResponse resultColumn = columnService.update(columnEditRequest, 1L);
 
         // Assert
         assertNotNull(resultColumn);
@@ -147,7 +158,7 @@ class ColumnServiceImplTest {
         when(columnRepository.findById(2L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(ColumnNotFoundExceptionTrello.class, () -> columnService.update(updatedColumn, 2L));
+        assertThrows(ColumnNotFoundExceptionTrello.class, () -> columnService.update(columnEditRequest, 2L));
         verify(columnRepository, times(1)).findById(2L);
         verify(columnRepository, never()).save(any(Column.class));
     }

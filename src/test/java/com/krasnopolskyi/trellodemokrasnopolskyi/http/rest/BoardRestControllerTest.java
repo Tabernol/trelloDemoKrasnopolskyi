@@ -34,8 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(BoardRestController.class)
 class BoardRestControllerTest {
     @MockBean
-    private BoardMapper boardMapper;
-    @MockBean
     private BoardService boardService;
 
     @InjectMocks
@@ -58,8 +56,7 @@ class BoardRestControllerTest {
 
     @Test
     void testGetBoardById() throws Exception {
-        when(boardService.findById(1L)).thenReturn(board1);
-        when(boardMapper.mapToDto(board1)).thenReturn(boardReadResponse1);
+        when(boardService.findById(1L)).thenReturn(boardReadResponse1);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/boards/{id}", 1L))
                 .andExpect(status().isOk())
@@ -67,15 +64,14 @@ class BoardRestControllerTest {
                 .andExpect(jsonPath("$.id").value(1L));
 
         verify(boardService, times(1)).findById(1L);
-        verify(boardMapper, times(1)).mapToDto(board1);
     }
 
     @Test
     void testGetAllBoards() throws Exception {
         List<Board> boards = Arrays.asList(board1, board2);
         List<BoardReadResponse> boardReadResponses = Arrays.asList(boardReadResponse1, boardReadResponse2);
-        when(boardService.findAll()).thenReturn(boards);
-        when(boardMapper.mapAll(boards)).thenReturn(boardReadResponses);
+        when(boardService.findAll()).thenReturn(boardReadResponses);
+
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/boards"))
                 .andExpect(status().isOk())
@@ -85,15 +81,13 @@ class BoardRestControllerTest {
                 .andExpect(jsonPath("$[1].id").exists());
 
         verify(boardService, times(1)).findAll();
-        verify(boardMapper, times(1)).mapAll(boards);
     }
 
     @Test
     void testCreateBoard() throws Exception {
-        BoardCreateRequest boardCreateRequest = BoardCreateRequest.builder().name("New board").owner("new@new.ua").build(); // Assuming you have a class for this request
-        Board board = Board.builder().id(3L).name("New board").owner("new@new.ua").build();
-        when(boardMapper.mapToEntity(boardCreateRequest)).thenReturn(board);
-        when(boardService.create(board)).thenReturn(board);
+        BoardCreateRequest boardCreateRequest = BoardCreateRequest.builder().name("New board").owner("new@new.ua").build();
+        BoardReadResponse boardReadResponse = BoardReadResponse.builder().id(3L).name("New board").owner("new@new.ua").build();
+        when(boardService.create(boardCreateRequest)).thenReturn(boardReadResponse);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/boards")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -102,21 +96,17 @@ class BoardRestControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").exists());
 
-        verify(boardMapper, times(1)).mapToEntity(boardCreateRequest);
-        verify(boardService, times(1)).create(board);
+        verify(boardService, times(1)).create(boardCreateRequest);
     }
 
     @Test
     void testUpdateBoard() throws Exception {
         Long boardId = 1L;
         BoardEditRequest boardEditRequest = BoardEditRequest.builder().name("edited name").build();
-        Board board = Board.builder().id(1L).name("edited name").owner("test@test.ua").build();
         BoardReadResponse boardReadResponseUpdated =
                 BoardReadResponse.builder().id(1L).name("edited name").owner("test@test.ua").build();
 
-        when(boardMapper.mapToEntity(boardEditRequest)).thenReturn(board);
-        when(boardService.update(board, boardId)).thenReturn(board);
-        when(boardMapper.mapToDto(board)).thenReturn(boardReadResponseUpdated);
+        when(boardService.update(boardEditRequest, boardId)).thenReturn(boardReadResponseUpdated);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/boards/{id}", boardId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -125,9 +115,7 @@ class BoardRestControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").exists());
 
-        verify(boardMapper, times(1)).mapToEntity(boardEditRequest);
-        verify(boardService, times(1)).update(board, boardId);
-        verify(boardMapper, times(1)).mapToDto(board);
+        verify(boardService, times(1)).update(boardEditRequest, boardId);
     }
 
     @Test

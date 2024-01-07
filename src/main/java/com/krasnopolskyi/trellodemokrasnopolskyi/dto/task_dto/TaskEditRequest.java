@@ -1,6 +1,9 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Status;
 import com.krasnopolskyi.trellodemokrasnopolskyi.validator.CreateValidationGroup;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -20,4 +23,8 @@ public class TaskEditRequest {
 
     @Size(max = 256)
     private String description;
+
+    //create custom validator for this enum
+    @Enumerated(EnumType.STRING)
+    private Status status;
 }

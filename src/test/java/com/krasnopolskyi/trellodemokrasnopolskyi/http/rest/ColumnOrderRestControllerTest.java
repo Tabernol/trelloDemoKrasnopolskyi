@@ -41,9 +41,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ColumnOrderRestControllerTest {
     @MockBean
     private ColumnOrderingService columnOrderingService;
-    @MockBean
-    private ColumnMapper columnMapper;
-
     @Autowired
     private MockMvc mockMvc;
     @InjectMocks
@@ -57,14 +54,17 @@ class ColumnOrderRestControllerTest {
         mockColumns.add(Column.builder().id(1L).name("Column 1").build());
         mockColumns.add(Column.builder().id(2L).name("Column 2").build());
 
+        List<ColumnReadResponse> mockColumnsResponse = new ArrayList<>();
+        mockColumnsResponse.add(ColumnReadResponse.builder().id(1L).name("Column 1").build());
+        mockColumnsResponse.add(ColumnReadResponse.builder().id(2L).name("Column 2").build());
+
         // Mocking service method
-        when(columnOrderingService.findAllColumnsByBoardInUserOrder(anyLong())).thenReturn(mockColumns);
+        when(columnOrderingService.findAllColumnsByBoardInUserOrder(anyLong())).thenReturn(mockColumnsResponse);
 
         // Mocking mapper method
         List<ColumnReadResponse> mockResponses = new ArrayList<>();
         mockResponses.add(ColumnReadResponse.builder().id(1L).name("Column 1").build());
         mockResponses.add(ColumnReadResponse.builder().id(2L).name("Column 2").build());
-        when(columnMapper.mapAll(anyList())).thenReturn(mockResponses);
 
         // Perform the GET request
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/boards/{boardId}/columns", boardId))
@@ -84,9 +84,8 @@ class ColumnOrderRestControllerTest {
         ColumnOrderEditRequest request = new ColumnOrderEditRequest();
         request.setColumnId(columnId);
         request.setOrderIndex(2);
-        ColumnOrder columnOrder = ColumnOrder.builder().columnId(columnId).orderIndex(2).build();
         // Mocking service method
-        when(columnOrderingService.reorder(columnOrder, 1L)).thenReturn(12);
+        when(columnOrderingService.reorder(request, 1L)).thenReturn(12);
 
         // Convert request to JSON
         String requestJson = new ObjectMapper().writeValueAsString(request);
@@ -106,10 +105,9 @@ class ColumnOrderRestControllerTest {
         ColumnOrderEditRequest request = new ColumnOrderEditRequest();
         request.setColumnId(columnId);
         request.setOrderIndex(2);
-        ColumnOrder columnOrder = ColumnOrder.builder().columnId(columnId).orderIndex(2).boardId(1L).build();
 
         // Mocking service method
-        when(columnOrderingService.reorder(columnOrder, 1L)).thenReturn(0);
+        when(columnOrderingService.reorder(request, 1L)).thenReturn(0);
 
         // Convert request to JSON
         String requestJson = new ObjectMapper().writeValueAsString(request);

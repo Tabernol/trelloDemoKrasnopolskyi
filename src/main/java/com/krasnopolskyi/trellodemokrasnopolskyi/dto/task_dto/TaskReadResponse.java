@@ -1,5 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.dto.task_dto;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class TaskReadResponse {
     private String description;
     private LocalDateTime dateOfCreation;
     private Long columnId;
+    private Status status;
 }

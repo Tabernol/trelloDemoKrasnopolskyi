@@ -70,7 +70,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public BoardReadResponse create(BoardCreateRequest entity) {
         Board board = boardMapper.mapToEntity(entity);
-        return boardMapper.mapToDto(board);
+        return boardMapper.mapToDto(boardRepository.save(board));
     }
 
     /**

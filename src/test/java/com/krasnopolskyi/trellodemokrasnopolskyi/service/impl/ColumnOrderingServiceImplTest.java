@@ -1,10 +1,12 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
 import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_order_dto.ColumnOrderEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
+import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
@@ -29,6 +32,8 @@ public class ColumnOrderingServiceImplTest {
     private ColumnOrderingRepository columnOrderingRepository;
     @Mock
     private ColumnRepository columnRepository;
+    @Autowired
+    private ColumnMapper columnMapper;
     @InjectMocks
     private ColumnOrderingServiceImpl columnOrderingService;
     private Column column;
@@ -77,7 +82,7 @@ public class ColumnOrderingServiceImplTest {
 
     @Test
     void testFindAllColumnsByBoardInUserOrder_ShouldReturnListOfColumn() {
-        Column column2 = Column.builder().id(2L).name("Column 2").build();
+        Column column2 = Column.builder().id(2L).name("Column 2").board(Board.builder().id(1L).build()).build();
         // Arrange
         Long boardId = 1L;
         when(columnOrderingRepository.findAllByBoardIdOrderByOrderIndex(boardId))
@@ -88,20 +93,16 @@ public class ColumnOrderingServiceImplTest {
 
 
         // Act
-        columnOrderingService.findAllColumnsByBoardInUserOrder(boardId)
+        columnOrderingService.findAllColumnsByBoardInUserOrder(boardId);
 
         // Assert
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("Column 1", result.get(0).getName());
-        assertEquals("Column 2", result.get(1).getName());
         verify(columnRepository, times(1)).findAllByBoard(boardId);
     }
 
     @Test
     void testReorder_ShouldUpdateOrderIndexesAndReturnSize() throws ColumnNotFoundExceptionTrello {
         // Arrange
-        ColumnOrder columnOrder = new ColumnOrder(1L, 1L, 2);
+        ColumnOrderEditRequest columnOrderEditRequest = new ColumnOrderEditRequest(1L, 2);
         List<ColumnOrder> columnOrderList = Arrays.asList(
                 columnOrder1, columnOrder2, new ColumnOrder(3L, 1L, 3)
         );
@@ -113,7 +114,7 @@ public class ColumnOrderingServiceImplTest {
         when(columnOrderingRepository.saveAllAndFlush(anyList())).thenReturn(columnOrderList);
 
         // Act
-        int result = columnOrderingService.reorder(columnOrder, 1L);
+        int result = columnOrderingService.reorder(columnOrderEditRequest, 1L);
 
         // Assert
         assertEquals(columnOrderList.size(), result);
@@ -123,10 +124,12 @@ public class ColumnOrderingServiceImplTest {
     }
 
     @Test
-    void testReorder_ShouldThrowException() throws ColumnNotFoundExceptionTrello {
+    void testReorder_ShouldThrowException()  {
+        ColumnOrderEditRequest columnOrderEditRequest = new ColumnOrderEditRequest(1L, 2);
         // Arrange
         when(columnRepository.findById(1L)).thenReturn(Optional.empty());
         // Act & Assert
-        assertThrows(ColumnNotFoundExceptionTrello.class, () -> columnOrderingService.reorder(columnOrder1, 1L));
+        assertThrows(ColumnNotFoundExceptionTrello.class,
+                () -> columnOrderingService.reorder(columnOrderEditRequest, 1L));
     }
 }

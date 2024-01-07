@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
  * Entity class representing a task in a Trello column.
  * <p>
  * This class is annotated with JPA annotations to define its mapping to the database.
+ *
  * @author Maksym Krasnopolskyi
  */
 @Getter
@@ -42,6 +43,11 @@ public class Task {
      * The date and time when the task was created.
      */
     private LocalDateTime dateOfCreation;
+    /**
+     * The status of task
+     */
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     /**
      * The column to which this task belongs.
@@ -54,5 +60,6 @@ public class Task {
     @JoinColumn(name = "column_id")
     @JsonIgnore
     private Column column;
+
 }
 

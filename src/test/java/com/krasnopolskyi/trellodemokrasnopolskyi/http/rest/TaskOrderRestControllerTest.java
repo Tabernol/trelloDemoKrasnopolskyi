@@ -37,8 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class TaskOrderRestControllerTest {
     @MockBean
     private TaskOrderingService taskOrderingService;
-    @MockBean
-    private TaskMapper taskMapper;
     @InjectMocks
     private TaskOrderRestController taskOrderRestController;
     @Autowired
@@ -55,8 +53,7 @@ class TaskOrderRestControllerTest {
                         TaskReadResponse.builder().id(1L).name("task 1").build(),
                         TaskReadResponse.builder().id(2L).name("task 2").build());
         // Mocking the service response
-        when(taskOrderingService.findAllByColumnByUserOrder(any(Long.class))).thenReturn(tasks);
-        when(taskMapper.mapAll(tasks)).thenReturn(expectedResponses);
+        when(taskOrderingService.findAllByColumnByUserOrder(any(Long.class))).thenReturn(expectedResponses);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/columns/{columnId}/tasks/order", 1L))
                 .andExpect(status().isOk())
