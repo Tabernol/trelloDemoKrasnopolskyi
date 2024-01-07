@@ -31,20 +31,15 @@ import static org.springframework.http.ResponseEntity.notFound;
 @Validated
 @Slf4j
 public class ColumnRestController {
-
     private final ColumnService columnService;
-    private final ColumnMapper columnMapper;
 
     /**
      * Constructs a new ColumnRestController with the given dependencies.
      *
      * @param columnService The service for managing columns.
-     * @param columnMapper  The mapper for converting column-related DTOs.
      */
-    public ColumnRestController(ColumnService columnService,
-                                ColumnMapper columnMapper) {
+    public ColumnRestController(ColumnService columnService) {
         this.columnService = columnService;
-        this.columnMapper = columnMapper;
     }
 
     /**
@@ -57,7 +52,7 @@ public class ColumnRestController {
     @GetMapping("/{id}")
     public ResponseEntity<ColumnReadResponse> getColumnById(
             @PathVariable("id") @Min(1) Long id) throws TrelloException {
-        return ResponseEntity.ok(columnMapper.mapToDto(columnService.findById(id)));
+        return ResponseEntity.ok(columnService.findById(id));
     }
 
     /**

@@ -3,9 +3,9 @@ package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
-import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Task;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.BoardNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
+import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
@@ -38,6 +39,8 @@ class ColumnServiceImplTest {
     private ColumnOrderingRepository columnOrderingRepository;
     @Mock
     private ColumnOrderingService columnOrderingService;
+    @Autowired
+    private ColumnMapper columnMapper;
     @InjectMocks
     private ColumnServiceImpl columnService;
     private Column testColumn;
@@ -46,8 +49,8 @@ class ColumnServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         testColumn = Column.builder().id(1L).name("Test Column").board(Board.builder().id(1L).build()).build();
-        columnOrderingService = new ColumnOrderingServiceImpl(columnOrderingRepository, columnRepository);
-        columnService = new ColumnServiceImpl(boardRepository, columnRepository, columnOrderingService);
+        columnOrderingService = new ColumnOrderingServiceImpl(columnOrderingRepository, columnRepository, columnMapper);
+        columnService = new ColumnServiceImpl(boardRepository, columnRepository, columnOrderingService, columnMapper);
     }
 
     @Test

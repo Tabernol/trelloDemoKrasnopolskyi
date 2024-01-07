@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @ActiveProfiles("test")
 @Transactional
-@SpringBootTest(classes = TrelloDemoKrasnopolskyiApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = TrelloDemoKrasnopolskyiApplication.class,
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public @interface IT {
 }

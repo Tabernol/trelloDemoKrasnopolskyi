@@ -1,8 +1,12 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardCreateRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardEditRequest;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.board_dto.BoardReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.BoardNotFoundExceptionTrello;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.TrelloException;
+import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.BoardMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.BoardRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Collections;
@@ -26,16 +31,23 @@ import static org.mockito.Mockito.*;
 class BoardServiceImplTest {
     @Mock
     private BoardRepository boardRepository;
+    @Autowired
+    private BoardMapper boardMapper;
     @InjectMocks
     private BoardServiceImpl boardService;
+
+
     private Board board;
+
+    private BoardEditRequest boardEditRequest;
+    private BoardCreateRequest boardCreateRequest;
 
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         board = Board.builder().id(3L).name("board3").owner("test@test.ua").build();
-        boardService = new BoardServiceImpl(boardRepository);
+        boardService = new BoardServiceImpl(boardRepository, boardMapper);
     }
 
     @Test
@@ -44,7 +56,7 @@ class BoardServiceImplTest {
         when(boardRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(board));
 
         // Act
-        Board resultBoard = boardService.findById(3L);
+        BoardReadResponse resultBoard = boardService.findById(3L);
 
         // Assert
         assertNotNull(resultBoard);
@@ -68,7 +80,7 @@ class BoardServiceImplTest {
         when(boardRepository.findAll()).thenReturn(Collections.singletonList(board));
 
         // Act
-        List<Board> resultBoards = boardService.findAll();
+        List<BoardReadResponse> resultBoards = boardService.findAll();
 
         // Assert
         assertFalse(resultBoards.isEmpty());
@@ -83,7 +95,7 @@ class BoardServiceImplTest {
         when(boardRepository.save(Mockito.any())).thenReturn(board);
 
         // Act
-        Board createdBoard = boardService.create(board);
+        BoardReadResponse createdBoard = boardService.create(board);
 
         // Assert
         assertNotNull(createdBoard);
@@ -98,7 +110,7 @@ class BoardServiceImplTest {
         when(boardRepository.save(Mockito.any())).thenReturn(board);
 
         // Act
-        Board updatedBoard = boardService.update(board, 3L);
+        BoardReadResponse updatedBoard = boardService.update(board, 3L);
 
         // Assert
         assertNotNull(updatedBoard);

@@ -1,5 +1,6 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Board;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
@@ -40,7 +41,7 @@ public class ColumnOrderingServiceImplTest {
         column = Column.builder().id(1L).name("Column 1").board(Board.builder().id(1L).build()).build();
         columnOrder1 = ColumnOrder.builder().columnId(1L).boardId(1L).orderIndex(1).build();
         columnOrder2 = ColumnOrder.builder().columnId(2L).boardId(1L).orderIndex(2).build();
-        columnOrderingService = new ColumnOrderingServiceImpl(columnOrderingRepository, columnRepository);
+        columnOrderingService = new ColumnOrderingServiceImpl(columnOrderingRepository, columnRepository, columnMapper);
     }
 
     @Test
@@ -87,7 +88,7 @@ public class ColumnOrderingServiceImplTest {
 
 
         // Act
-        List<Column> result = columnOrderingService.findAllColumnsByBoardInUserOrder(boardId);
+        columnOrderingService.findAllColumnsByBoardInUserOrder(boardId)
 
         // Assert
         assertNotNull(result);

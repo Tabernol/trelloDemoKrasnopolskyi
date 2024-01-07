@@ -1,14 +1,18 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service.impl;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_order_dto.ColumnOrderEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
+import com.krasnopolskyi.trellodemokrasnopolskyi.mapper.ColumnMapper;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.ColumnOrderingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * Service class that provides business logic for managing the ordering of columns.
+ *
  * @author Maksym Krasnopolskyi
  */
 @Service
@@ -26,18 +31,22 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
     private final ColumnOrderingRepository columnOrderingRepository;
     private final ColumnRepository columnRepository;
 
+    private final ColumnMapper columnMapper;
 
+    public static final String MISMATCHED_IDS = "Mismatched IDs";
 
     /**
      * Constructs a new ColumnOrderingServiceImpl with the given dependencies.
      *
      * @param columnOrderingRepository The repository for column ordering entities.
      * @param columnRepository         The repository for column entities.
+     * @param columnMapper             Mapper
      */
     public ColumnOrderingServiceImpl(ColumnOrderingRepository columnOrderingRepository,
-                                     ColumnRepository columnRepository) {
+                                     ColumnRepository columnRepository, ColumnMapper columnMapper) {
         this.columnOrderingRepository = columnOrderingRepository;
         this.columnRepository = columnRepository;
+        this.columnMapper = columnMapper;
     }
 
     /**
@@ -78,7 +87,7 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
      * @param boardId The ID of the board.
      * @return A list of columns in the user-defined order for the specified board.
      */
-    public List<Column> findAllColumnsByBoardInUserOrder(Long boardId) {
+    public List<ColumnReadResponse> findAllColumnsByBoardInUserOrder(Long boardId) {
         List<Column> nonSortedColumns = columnRepository.findAllByBoard(boardId);
 
         Map<Long, Column> columns = nonSortedColumns.stream()
@@ -86,10 +95,12 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
 
         List<Long> userOrder = findAllColumnsIdByBoardIdInUserOrder(boardId);
 
-        return userOrder
-                .stream()
-                .map(columns::get)
-                .collect(Collectors.toList());
+        return columnMapper.mapAll(
+                userOrder
+                        .stream()
+                        .map(columns::get)
+                        .collect(Collectors.toList()));
+
     }
 
     /**
@@ -101,7 +112,11 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
      */
     @Override
     @Transactional
-    public int reorder(ColumnOrder columnOrder, Long columnId) throws ColumnNotFoundExceptionTrello {
+    public int reorder(ColumnOrderEditRequest columnOrderEditRequest, Long columnId) throws ColumnNotFoundExceptionTrello {
+        checkRequest(columnOrderEditRequest, columnId);
+
+        ColumnOrder columnOrder = buildColumnOrder(columnOrderEditRequest);
+
         Column column = columnRepository.findById(columnId).orElseThrow(
                 () -> new ColumnNotFoundExceptionTrello("Column with id " + columnId + " not found"));
 
@@ -137,5 +152,18 @@ public class ColumnOrderingServiceImpl implements ColumnOrderingService {
         }
         columnOrderList = columnOrderingRepository.saveAllAndFlush(columnOrderList);
         return columnOrderList.size();
+    }
+
+    private void checkRequest(ColumnOrderEditRequest columnOrderEditRequest, Long columnId) throws ColumnNotFoundExceptionTrello {
+        if (!columnId.equals(columnOrderEditRequest.getColumnId())) {
+            throw new ColumnNotFoundExceptionTrello(MISMATCHED_IDS);
+        }
+    }
+
+    private ColumnOrder buildColumnOrder(ColumnOrderEditRequest columnOrderEditRequest){
+        return ColumnOrder.builder()
+                .columnId(columnOrderEditRequest.getColumnId())
+                .orderIndex(columnOrderEditRequest.getOrderIndex())
+                .build();
     }
 }

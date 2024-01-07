@@ -33,20 +33,15 @@ import static org.springframework.http.ResponseEntity.notFound;
 @Validated
 @Slf4j(topic = "BOARD_CONTROLLER")
 public class BoardRestController {
-
     private final BoardService boardService;
-    private final BoardMapper boardMapper;
 
     /**
      * Constructs a new BoardRestController with the given dependencies.
      *
      * @param boardService The service for managing boards.
-     * @param boardMapper  The mapper for converting board-related DTOs.
      */
-    public BoardRestController(BoardService boardService,
-                               BoardMapper boardMapper) {
+    public BoardRestController(BoardService boardService) {
         this.boardService = boardService;
-        this.boardMapper = boardMapper;
     }
 
     /**
@@ -59,7 +54,7 @@ public class BoardRestController {
     @GetMapping("/{id}")
     public ResponseEntity<BoardReadResponse> getBoardById(
             @PathVariable("id") @Min(1) Long id) throws TrelloException {
-        return ResponseEntity.ok(boardMapper.mapToDto(boardService.findById(id)));
+        return ResponseEntity.ok(boardService.findById(id));
     }
 
     /**
@@ -69,7 +64,7 @@ public class BoardRestController {
      */
     @GetMapping
     public ResponseEntity<List<BoardReadResponse>> getAllBoards() {
-        return ResponseEntity.ok(boardMapper.mapAll(boardService.findAll()));
+        return ResponseEntity.ok(boardService.findAll());
     }
 
     /**
@@ -81,10 +76,9 @@ public class BoardRestController {
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Board> createBoard(
+    public ResponseEntity<BoardReadResponse> createBoard(
             @Validated @RequestBody BoardCreateRequest boardCreateRequest) throws TrelloException {
-        Board board = boardMapper.mapToEntity(boardCreateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(boardService.create(board));
+        return ResponseEntity.status(HttpStatus.CREATED).body(boardService.create(boardCreateRequest));
     }
 
     /**
@@ -99,8 +93,7 @@ public class BoardRestController {
     public ResponseEntity<BoardReadResponse> updateBoard(
             @PathVariable("id") @Min(1) Long id,
             @Validated @RequestBody BoardEditRequest boardEditRequest) throws BoardNotFoundExceptionTrello {
-        Board board = boardMapper.mapToEntity(boardEditRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(boardMapper.mapToDto(boardService.update(board, id)));
+        return ResponseEntity.status(HttpStatus.OK).body(boardService.update(boardEditRequest, id));
     }
 
     /**

@@ -28,24 +28,17 @@ import java.util.List;
 public class ColumnOrderRestController {
     private final ColumnOrderingService columnOrderingService;
 
-    private final ColumnMapper columnMapper;
-
     public static final String ORDER_SUCCESSFUL = "Column ordered successfully";
 
     public static final String ORDER_FAILED = "Column ordered failed";
-
-    public static final String MISMATCHED_IDS = "Mismatched IDs";
 
     /**
      * Constructs a new {@code ColumnOrderRestController} with the specified services.
      *
      * @param columnOrderingService Service for handling column ordering operations.
-     * @param columnMapper          Mapper for converting Column entities to DTOs.
      */
-    public ColumnOrderRestController(ColumnOrderingService columnOrderingService,
-                                     ColumnMapper columnMapper) {
+    public ColumnOrderRestController(ColumnOrderingService columnOrderingService) {
         this.columnOrderingService = columnOrderingService;
-        this.columnMapper = columnMapper;
     }
 
     /**
@@ -57,8 +50,8 @@ public class ColumnOrderRestController {
     @GetMapping("/{boardId}/columns")
     public ResponseEntity<List<ColumnReadResponse>> getOrderedColumn(
             @PathVariable("boardId") Long boardId) {
-        List<Column> sortedColumns = columnOrderingService.findAllColumnsByBoardInUserOrder(boardId);
-        return ResponseEntity.ok(columnMapper.mapAll(sortedColumns));
+        List<ColumnReadResponse> sortedColumns = columnOrderingService.findAllColumnsByBoardInUserOrder(boardId);
+        return ResponseEntity.status(HttpStatus.OK).body(sortedColumns);
     }
 
     /**
@@ -74,21 +67,9 @@ public class ColumnOrderRestController {
             @PathVariable("columnId") @Min(1) Long columnId,
             @Validated() @RequestBody ColumnOrderEditRequest columnOrderEditRequest)
             throws ColumnNotFoundExceptionTrello {
-        // Check for mismatched IDs in the request
-        // maybe I will do it in service
-        if (!columnId.equals(columnOrderEditRequest.getColumnId())) {
-            return ResponseEntity.badRequest().body(MISMATCHED_IDS);
-        }
-
-
-        // Create a ColumnOrder object based on the request
-        ColumnOrder columnOrder = ColumnOrder.builder()
-                .columnId(columnOrderEditRequest.getColumnId())
-                .orderIndex(columnOrderEditRequest.getOrderIndex())
-                .build();
 
         // Perform the reorder operation and handle the response
-        int updatedRow = columnOrderingService.reorder(columnOrder, columnId);
+        int updatedRow = columnOrderingService.reorder(columnOrderEditRequest, columnId);
 
         return updatedRow > 0 ?
                 ResponseEntity.ok(ORDER_SUCCESSFUL) :

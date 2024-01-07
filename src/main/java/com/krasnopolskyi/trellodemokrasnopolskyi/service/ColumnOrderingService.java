@@ -1,5 +1,7 @@
 package com.krasnopolskyi.trellodemokrasnopolskyi.service;
 
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_dto.ColumnReadResponse;
+import com.krasnopolskyi.trellodemokrasnopolskyi.dto.column_order_dto.ColumnOrderEditRequest;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.Column;
 import com.krasnopolskyi.trellodemokrasnopolskyi.entity.ColumnOrder;
 import com.krasnopolskyi.trellodemokrasnopolskyi.exception.ColumnNotFoundExceptionTrello;
@@ -12,7 +14,7 @@ public interface ColumnOrderingService {
 
     List<Long> findAllColumnsIdByBoardIdInUserOrder(Long boardId);
 
-    List<Column> findAllColumnsByBoardInUserOrder(Long boardId);
+    List<ColumnReadResponse> findAllColumnsByBoardInUserOrder(Long boardId);
 
-    int reorder(ColumnOrder columnOrder, Long columnId) throws ColumnNotFoundExceptionTrello;
+    int reorder(ColumnOrderEditRequest columnOrderEditRequest, Long columnId) throws ColumnNotFoundExceptionTrello;
 }
