@@ -15,7 +15,6 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskOrderingRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskOrderingService;
-import com.krasnopolskyi.trellodemokrasnopolskyi.utils.TaskUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,8 +46,6 @@ public class TaskServiceImplTest {
     @Autowired
     private TaskMapper taskMapper;
 
-    private TaskUtils taskUtils;
-
     @InjectMocks
     private TaskServiceImpl taskService;
     private Task testTask;
@@ -64,7 +61,7 @@ public class TaskServiceImplTest {
         taskOrderingService =
                 new TaskOrderingServiceImpl(taskOrderingRepository, taskRepository, columnRepository, taskMapper);
         taskService =
-                new TaskServiceImpl(taskRepository, taskOrderingService, columnRepository, taskMapper, taskUtils);
+                new TaskServiceImpl(taskRepository, taskOrderingService, columnRepository, taskMapper);
 
     }
 
