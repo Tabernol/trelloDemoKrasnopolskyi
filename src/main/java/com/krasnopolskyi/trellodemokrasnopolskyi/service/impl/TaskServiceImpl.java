@@ -14,7 +14,6 @@ import com.krasnopolskyi.trellodemokrasnopolskyi.repository.ColumnRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.repository.TaskRepository;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskOrderingService;
 import com.krasnopolskyi.trellodemokrasnopolskyi.service.TaskService;
-import com.krasnopolskyi.trellodemokrasnopolskyi.utils.TaskUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +36,6 @@ public class TaskServiceImpl implements TaskService {
     private final TaskOrderingService taskOrderingService;
     private final ColumnRepository columnRepository;
     private final TaskMapper taskMapper;
-    private final TaskUtils taskUtils;
 
     /**
      * Constructs a new TaskServiceImpl with the given dependencies.
@@ -51,13 +49,11 @@ public class TaskServiceImpl implements TaskService {
     public TaskServiceImpl(TaskRepository taskRepository,
                            TaskOrderingService taskOrderingService,
                            ColumnRepository columnRepository,
-                           TaskMapper taskMapper,
-                           TaskUtils taskUtils) {
+                           TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
         this.taskOrderingService = taskOrderingService;
         this.columnRepository = columnRepository;
         this.taskMapper = taskMapper;
-        this.taskUtils = taskUtils;
     }
 
     /**
@@ -86,7 +82,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(()
                         -> new TaskNotFoundExceptionTrello("Task with id " + id + " not found"));
-        return taskUtils.getRandomStatus(task.getStatus()).name();
+        return task.getStatus().name();
     }
 
     /**
@@ -141,10 +137,10 @@ public class TaskServiceImpl implements TaskService {
         if (taskEditRequest.getName() != null) {
             existingTask.setName(taskEditRequest.getName());
         }
-        if (taskEditRequest.getStatus() != null) {
-            TaskUtils.checkUpdatingStatus(existingTask, taskEditRequest);
-            existingTask.setStatus(taskEditRequest.getStatus());
-        }
+//        if (taskEditRequest.getStatus() != null) {
+//            TaskUtils.checkUpdatingStatus(existingTask, taskEditRequest);
+//            existingTask.setStatus(taskEditRequest.getStatus());
+//        }
 
         if (taskEditRequest.getDescription() != null) {
             existingTask.setDescription(taskEditRequest.getDescription());
