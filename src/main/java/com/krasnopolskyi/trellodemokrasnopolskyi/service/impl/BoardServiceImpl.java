@@ -89,11 +89,12 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public boolean delete(Long id) {
-        return boardRepository.findById(id)
-                .map(entity -> {
-                    boardRepository.delete(entity);
-                    boardRepository.flush();
-                    return true;
-                }).orElse(false);
+        return false;
+//        return boardRepository.findById(id)
+//                .map(entity -> {
+//                    boardRepository.delete(entity);
+//                    boardRepository.flush();
+//                    return true;
+//                }).orElse(false);
     }
 }
